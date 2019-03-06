@@ -312,3 +312,6 @@ export const ArrayOne = Joi.object({
 * Better support for object fields in swagger and Joi
 * Inheritance
 * Arrays of custom types
+* tags and compiling with tags
+* Swagger params vs body
+* Allow dynamic names via callbacks

@@ -2,7 +2,7 @@
 
 ## What is it?
 
-This project provides a generic structure for defining data, and allows generation of TypeScript interfaces, Joi schemas, and Swagger schemas from that data, allowing changes to more easily propegate through a complex system.
+This project provides a generic structure for defining data, and allows generation of TypeScript interfaces, Joi schemas, and Swagger schemas from that data, allowing changes to more easily propagate through a complex system.
 
 ## How is it used?
 

@@ -172,6 +172,143 @@ export const ModelObject = Joi.object({
 ```
 Notice that the compiler can use both a pre-created enum for TypeScript as well as create one at compile-time if desired.
 
+### Example 3: Objects
+
+There are a few different options for objects. Currently only TypeScript supports most of them-swagger and Joi will just show a simple object type.
+
+```
+const ObjectOne = {
+	type: Constants.Types.Model,
+	fields: {
+		item_id: {
+			type: FieldTypes.Obj,
+			required: true,
+			keys: {
+				type: FieldTypes.String
+			},
+			values: {
+				type: FieldTypes.String,
+			}
+		}
+	}
+}
+
+const ObjectTwo = {
+	type: Constants.Types.Model,
+	fields: {
+		item: {
+			type: FieldTypes.Obj,
+			required: true,
+            values: {
+                typeName: 'ObjectOne'
+            }
+		},
+		props: {
+			type: FieldTypes.Obj
+		}
+	}
+}
+```
+*TypeScript*
+```
+export interface ObjectOne {
+    [item_id: string]: string;
+}
+
+export interface ObjectTwo {
+    item: ObjectOne;
+    props?: object;
+}
+```
+*Swagger*
+```
+components:
+  schemas:
+    ObjectOne:
+      item_id:
+        type: object
+        required: true
+
+    ObjectTwo:
+      item:
+        type: object
+        required: true
+      props:
+        type: object
+```
+*Joi*
+```
+export const ObjectOne = Joi.object({
+    item_id: Joi.object().label('item_id').required(),
+});
+
+export const ObjectTwo = Joi.object({
+    item: Joi.object().label('item').required(),
+    props: Joi.object().label('props').optional(),
+});
+```
+
+### Example 4: Arrays
+
+Arrays are supported as both fields on their own, or as values of objects.
+
+```
+const ArrayOne = {
+	type: Constants.Types.Model,
+	fields: {
+		field1: {
+			type: FieldTypes.Array,
+			required: true,
+			subType: {
+				type: FieldTypes.String
+			}
+		},
+		field2: {
+			type: FieldTypes.Obj,
+			keys: {
+				type: FieldTypes.String
+			},
+			values: {
+				type: FieldTypes.Array,
+				data: {
+					subType: {
+						type: FieldTypes.String
+					}
+				}
+			}
+		}
+	}
+}
+```
+*TypeScript*
+```
+export interface ArrayOne {
+    field1: string[];
+    [field2: string]: string[];
+}
+```
+*Swagger*
+```
+components:
+  schemas:
+    ArrayOne:
+      field1:
+        type: array
+          items:
+            type: string
+        required: true
+      field2:
+        type: object
+```
+*Joi*
+```
+export const ArrayOne = Joi.object({
+    field1: Joi.array().items(Joi.string().required()).label('field1').required(),
+    field2: Joi.object().label('field2').optional(),
+});
+```
+
 ## ToDo
-* Better support for object fields
+* Better support for object fields in swagger and Joi
 * Inheritance
+* Arrays of custom types

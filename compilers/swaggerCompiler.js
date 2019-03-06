@@ -13,6 +13,9 @@ function buildSwagger(object, indent, enums) {
     let swagger = '';
 
     modules.forEach((module) => {
+        if (module.enum) {
+            return;
+        }
         swagger += `${getHalfIndent(2)}${module.name}:\n`;
 
         module.fields.forEach((field) => {
@@ -26,14 +29,17 @@ function buildSwagger(object, indent, enums) {
 }
 
 function buildSwaggerField(object) {
+    //console.log(object.data);
     let swagger = `${getHalfIndent(3)}${object.name}:\n`;
     if (object.data.array) {
         swagger += `${getHalfIndent(4)}type: array\n`;
         swagger += `${getHalfIndent(5)}items:\n`;
         swagger += `${getHalfIndent(6)}type: ${object.data.type}`;
-    } else if (object.data.type === 'enum') {
+    } else if (object.data.enum) {
+        //console.log('hello');
         swagger += `${getHalfIndent(4)}type: string\n`;
         swagger += `${getHalfIndent(4)}enum: [${object.data.values.join(', ')}]`;
+        //console.log(swagger);
     } else if (object.data.type === 'date') {
         swagger += `${getHalfIndent(4)}type: string\n`;
         swagger += `${getHalfIndent(4)}format: date-time`;

@@ -12,7 +12,10 @@ function buildJoi(object, indent, enums) {
 
     let joi = '';
 
-    modules.forEach((module, index) => {
+    modules.forEach((module) => {
+        if (module.enum) {
+            return;
+        }
         joi += `export const ${module.name} = Joi.object({\n`;
 
         module.fields.forEach((field) => {
@@ -45,7 +48,7 @@ function getJoiLine(object) {
         line = line.substring(0, line.length - 1);
         //console.log(line);
         joi += `Joi.array().items(${line})`;
-    } else if (object.data.type === 'enum') {
+    } else if (object.data.enum) {
         const valuesWithQuotes = object.data.values.map((value) => {
             return `'${value}'`;
         });

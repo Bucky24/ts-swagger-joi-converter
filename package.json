@@ -1,0 +1,19 @@
+{
+  "name": "ts-swagger-joi-converter",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+	  
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bucky24/ts-swagger-joi-converter.git"
+  },
+  "author": "Robbert Wijtman",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Bucky24/ts-swagger-joi-converter/issues"
+  },
+  "homepage": "https://github.com/Bucky24/ts-swagger-joi-converter#readme"
+}

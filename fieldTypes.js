@@ -152,26 +152,62 @@ const Date = (key, data) => {
 };
 
 const Obj = (key, data) => {
+    if (data.keys && data.keys.type) {
+        const compiledType = data.keys.type(null, data.keys.data || {});
+        data.keys = {
+            type: data.keys.type,
+            ...compiledType,
+            data: {
+                ...data.keys,
+                ...compiledType.data
+            },
+        };
+    }
+    if (data.values) {
+        if (data.values.type) {
+            const compiledType = data.values.type(null, data.values.data || {});
+            data.values = {
+                type: data.values.type,
+                ...compiledType,
+                data: {
+                    ...data.values,
+                    ...compiledType.data
+                },
+            };
+        } else {
+            data.values = {
+                data: {
+                    ...data.values
+                }
+            };
+        }
+    }
     return {
         typeScript: {
             name: key,
             data: {
                 type: 'object',
-                required: data.required
+                required: data.required,
+                keys: data.keys,
+                values: data.values
             }
         },
         swagger: {
             name: key,
             data: {
                 type: 'object',
-                required: data.required
+                required: data.required,
+                keys: data.keys,
+                values: data.values
             }
         },
         joi: {
             name: key,
             data: {
                 type: 'object',
-                required: data.required
+                required: data.required,
+                keys: data.keys,
+                values: data.values
             }
         },
         children: []

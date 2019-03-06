@@ -173,7 +173,5 @@ export const ModelObject = Joi.object({
 Notice that the compiler can use both a pre-created enum for TypeScript as well as create one at compile-time if desired.
 
 ## ToDo
-* Required fields in swagger
 * Better support for object fields
 * Inheritance
-* Typed fields that are not enums

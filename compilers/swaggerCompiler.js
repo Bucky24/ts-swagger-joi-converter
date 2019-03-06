@@ -40,6 +40,9 @@ function buildSwaggerField(object) {
     } else {
         swagger += `${getHalfIndent(4)}type: ${object.data.type}`;
     }
+    if (object.data.required) {
+        swagger += `\n${getHalfIndent(4)}required: true`;
+    }
     return swagger;
 }
 

@@ -37,13 +37,15 @@ function flattenObject(object, key, parentName, enums) {
         if (type === 'array') {
             const firstChild = object.children[0][key];
             if (Constants.standardTypes.includes(firstChild.data.type)) {
+                //console.log(object[key]);
                 return {
                     modules: [], fields: [{
                         name: object[key].name,
                         data: {
                             type: firstChild.data.type,
                             array: true,
-                            ...firstChild.data
+                            ...firstChild.data,
+                            required: object[key].data.required,
                         }
                     }]
                 };
@@ -111,6 +113,41 @@ function flattenObject(object, key, parentName, enums) {
                     }
                 }
             }
+        } else if (type === 'object') {
+            const newObj = {
+                ...object[key],
+                data: {
+                    ...object[key].data
+                }
+            };
+
+            if (newObj.data.keys) {
+                newObj.data.keys = {
+                    ...newObj.data.keys[key],
+                    data: {
+                        ...newObj.data.data,
+                        ...newObj.data.keys[key].data
+                    }
+                };
+            }
+            
+            let modules = [];
+            let fields = [newObj];
+
+            if (newObj.data.values && newObj.data.values.type) {
+                // now we have to process it
+                const result = flattenObject(newObj.data.values, key, object.name, enums);
+                //console.log('result is', result);
+                modules = [
+                    ...modules,
+                    ...result.modules
+                ];
+                newObj.data.values = {
+                    ...result.fields[0]
+                };
+            }
+
+            return { modules, fields };
         } else {
             return { modules: [], fields: [object[key]] };
         }

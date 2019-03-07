@@ -37,8 +37,11 @@ function buildSwaggerField(object) {
         swagger += `${getHalfIndent(6)}type: ${object.data.type}`;
     } else if (object.data.enum) {
         //console.log('hello');
+		const lowerCaseValues = object.data.values.map((value) => {
+			return value.toLowerCase();
+		});
         swagger += `${getHalfIndent(4)}type: string\n`;
-        swagger += `${getHalfIndent(4)}enum: [${object.data.values.join(', ')}]`;
+        swagger += `${getHalfIndent(4)}enum: [${lowerCaseValues.join(', ')}]`;
         //console.log(swagger);
     } else if (object.data.type === 'date') {
         swagger += `${getHalfIndent(4)}type: string\n`;
@@ -52,4 +55,7 @@ function buildSwaggerField(object) {
     return swagger;
 }
 
-module.exports = buildSwagger;
+module.exports = {
+	buildSwagger,
+	buildSwaggerField
+};

@@ -50,7 +50,7 @@ function getJoiLine(object) {
         joi += `Joi.array().items(${line})`;
     } else if (object.data.enum) {
         const valuesWithQuotes = object.data.values.map((value) => {
-            return `'${value}'`;
+            return `'${value.toLowerCase()}'`;
         });
         joi += `Joi.string().only([${valuesWithQuotes.join(', ')}])`;
     } else {
@@ -72,4 +72,8 @@ function getJoiLine(object) {
     return joi;
 }
 
-module.exports = buildJoi;
+module.exports = {
+	buildJoi,
+	buildJoiField,
+	getJoiLine
+};

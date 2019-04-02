@@ -1,10 +1,10 @@
 {
   "name": "ts-swagger-joi-converter",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "",
   "main": "src/index.js",
   "scripts": {
-      "test": "NODE_ENV=test LOG_LEVEL=warn jest -c jest.config.js --runInBand --detectOpenHandles"
+    "test": "NODE_ENV=test LOG_LEVEL=warn jest -c jest.config.js --runInBand --detectOpenHandles"
   },
   "repository": {
     "type": "git",
@@ -18,5 +18,8 @@
   "homepage": "https://github.com/Bucky24/ts-swagger-joi-converter#readme",
   "devDependencies": {
     "jest": "24.3.0"
+  },
+  "dependencies": {
+    "rimraf": "2.6.3"
   }
 }

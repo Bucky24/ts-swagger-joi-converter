@@ -1,8 +1,14 @@
 const Constants = require('./constants');
 const Compilers = require('./compilers');
+const Utils = require('./utils');
 
-function compileObjects(object) {
+function compileObjects(object, settings = {}) {
     const enums = {};
+	
+	const {
+		outputFormat, // the format to output to
+		outputDirectory // directory to create files in
+	} = settings;
 
     let typeScriptFileContents = '';
     let swaggerFileContents = '';
@@ -21,14 +27,14 @@ function compileObjects(object) {
         }
     });
 
-    return {
+    return Utils.processOutput({
         typeScript: typeScriptFileContents,
         swagger: swaggerFileContents,
         joi: joiFileContents
-    };
+    }, settings);
 }
 
-function compileObject(contentName, data, enums=[]) {
+function compileObject(contentName, data, enums=[], settings={}) {
     console.log(`Compiling ${contentName}`);
 
     if (!data.type) {
@@ -65,11 +71,11 @@ function compileObject(contentName, data, enums=[]) {
     const swaggerFileContents = Compilers.compileSwagger(topLevel, undefined, enums);
     const joiFileContents = Compilers.compileJoi(topLevel, undefined, enums);
 
-    return {
+    return Utils.processOutput({
         typeScript: typeScriptFileContents,
         swagger: swaggerFileContents,
         joi: joiFileContents
-    };
+    }, settings);
 }
 
 module.exports = {

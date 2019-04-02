@@ -5,7 +5,13 @@ const Types = {
     Enum: 'ENUM'
 };
 
+const OutputTypes = {
+	Json: 'OUTPUT_JSON',
+	File: 'OUTPUT_FILE'
+};
+
 module.exports = {
     standardTypes,
-    Types
+    Types,
+	OutputTypes
 };

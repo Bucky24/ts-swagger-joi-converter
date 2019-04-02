@@ -27,4 +27,7 @@ const ArrayOne = {
 	}
 };
 
-console.log(compileObjects({ ArrayOne }));
+console.log(compileObjects({ ArrayOne }, {
+	outputFormat: Constants.OutputTypes.File,
+	outputDirectory: __dirname
+}));

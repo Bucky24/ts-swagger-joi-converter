@@ -103,7 +103,7 @@ function getJoiLine(object, enums, objects, indent) {
         //console.log(realFieldData);
         let line = getJoiLine({ data: realFieldData }, enums, objects, indent);
         // remove comma
-        line = line.substring(0, line.length - 1);
+        line = line.substring(0, line.length);
         //console.log(line);
         joi += `Joi.array().items(${line})`;
     } else if (object.data.enum) {
@@ -122,8 +122,8 @@ function getJoiLine(object, enums, objects, indent) {
 			joi += buildJoiFields(childModule.fields, enums, objects, indent + 1);
 			joi += `${Utils.getIndent(indent)}})`;
 		} else if (object.data.keys) {
+			joi += `Joi.object().pattern(/.*/,[`;
 			if (object.data.values.data.typeName) {
-				joi += `Joi.object().pattern(`;
 				const typeObject = objects[object.data.values.data.typeName];
 				if (!typeObject) {
 					throw new Error(`Unable to find object for typename ${object.data.values.data.typeName}`);
@@ -132,10 +132,12 @@ function getJoiLine(object, enums, objects, indent) {
 				const childModule = processObject(object.data.values.data.typeName, typeObject, enums);
 				const childJoi = buildJoiFields(childModule.fields, enums, objects, indent+1);
 				// using default for now
-				joi += `/.*/,[Joi.object({\n${childJoi}${Utils.getIndent(indent)}})]`
+				joi += `Joi.object({\n${childJoi}${Utils.getIndent(indent)}})`
 			
-				joi += `)`;
+			} else {
+				joi += `Joi.${object.data.values.data.type}()`;
 			}
+			joi += `])`;
 		}
     } else {
         joi += `Joi.${object.data.type}()`;

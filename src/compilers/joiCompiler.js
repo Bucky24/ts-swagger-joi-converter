@@ -91,7 +91,7 @@ function getJoiLine(object, enums, objects, indent) {
 					childJoi += buildJoiField(field, enums, objects, indent+1) + '\n';
 				});
 				// using default for now
-				joi += `/.*/,[Joi.Object({\n${childJoi}${Utils.getIndent(indent)})]`
+				joi += `/.*/,[Joi.object({\n${childJoi}${Utils.getIndent(indent)}})]`
 			
 				joi += `)`;
 			}

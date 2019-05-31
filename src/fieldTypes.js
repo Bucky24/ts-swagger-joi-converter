@@ -224,6 +224,33 @@ const Obj = (key, data) => {
     }
 };
 
+const Boolean = (key, data) => {
+    return {
+        typeScript: {
+            name: key,
+            data: {
+                type: 'boolean',
+                required: data.required
+            }
+        },
+        swagger: {
+            name: key,
+            data: {
+                type: 'boolean',
+                required: data.required
+            }
+        },
+        joi: {
+            name: key,
+            data: {
+                type: 'boolean',
+                required: data.required
+            }
+        },
+        children: []
+    }
+};
+
 const FieldTypes = {
     Number,
     ReferenceID,
@@ -232,6 +259,7 @@ const FieldTypes = {
     Enum,
     Date,
     Obj,
+	Boolean
 };
 
 module.exports = FieldTypes;

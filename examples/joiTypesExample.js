@@ -20,9 +20,19 @@ const Object1 = {
 			tag: Constants.JoiTags.Body
 		}
 	}
-}
+};
 
-compileObjects({ Object1 }, {
+const Object2 = {
+	type: Constants.Types.Model,
+	fields: {
+		field1: {
+			type: FieldTypes.Obj,
+			tag: Constants.JoiTags.Body
+		}
+	}
+};
+
+compileObjects({ Object1, Object2 }, {
 	outputFormat: Constants.OutputTypes.File,
 	outputDirectory: __dirname,
 	filePrefix: 'joiTypesExample'

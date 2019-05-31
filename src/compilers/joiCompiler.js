@@ -2,6 +2,12 @@ const Utils = require('../utils');
 const Constants = require('../constants');
 const _ = require('lodash');
 
+const sectionLookup = {
+	[Constants.JoiTags.Body]: 'body',
+	[Constants.JoiTags.Query]: 'query',
+	[Constants.JoiTags.Params]: 'params'
+};
+
 function buildJoi(object, indent, enums, objects) {
     if (indent) {
         INDENT_SIZE = indent;
@@ -21,21 +27,15 @@ function buildJoi(object, indent, enums, objects) {
         joi += `export const ${module.name} = Joi.object({\n`;
 		
 		let anyTagsFound = false;
-		const bySection = {
-			body: [],
-			params: [],
-			query: []
-		};
+		const bySection = {};
 
         module.fields.forEach((field) => {
-			if (field.data.tag === Constants.JoiTags.Body) {
-				bySection.body.push(field);
-				anyTagsFound = true;
-			} else if (field.data.tag === Constants.JoiTags.Query) {
-				bySection.query.push(field);
-				anyTagsFound = true;
-			} else if (field.data.tag === Constants.JoiTags.Params) {
-				bySection.params.push(field);
+			const section = sectionLookup[field.data.tag];
+			if (section) {
+				if (!bySection[section]) {
+					bySection[section] = [];
+				}
+				bySection[section].push(field);
 				anyTagsFound = true;
 			}
         });
@@ -44,12 +44,17 @@ function buildJoi(object, indent, enums, objects) {
 			// if no tags just build a general object
 	        joi += buildJoiFields(module.fields, enums, objects, 1);
 		} else {
-			// build all three objects
-			Object.keys(bySection).forEach((section, index) => {
+			const sectionKeys = Object.keys(bySection);
+			// build all sections
+			sectionKeys.forEach((section, index) => {
+				// don't build it if there's nothing there
+				if (bySection[section].length === 0) {
+					return;
+				}
 				joi += `${Utils.getIndent(1)}${section}: {\n`;
 				joi += buildJoiFields(bySection[section], enums, objects, 2);
 				joi += `${Utils.getIndent(1)}}`;
-				if (index < Object.keys(bySection).length-1) {
+				if (index < sectionKeys.length-1) {
 					joi += ',';
 				}
 				joi += '\n';
@@ -138,6 +143,8 @@ function getJoiLine(object, enums, objects, indent) {
 				joi += `Joi.${object.data.values.data.type}()`;
 			}
 			joi += `])`;
+		} else {
+			joi += `Joi.object()`;
 		}
     } else {
         joi += `Joi.${object.data.type}()`;

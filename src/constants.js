@@ -10,8 +10,15 @@ const OutputTypes = {
 	File: 'OUTPUT_FILE'
 };
 
+const JoiTags = {
+	Body: 'joi_body',
+	Params: 'joi_params',
+	Query: 'joi_query'
+}
+
 module.exports = {
     standardTypes,
     Types,
-	OutputTypes
+	OutputTypes,
+	JoiTags
 };

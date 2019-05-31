@@ -4,21 +4,24 @@ const Number = (key, data) => {
             name: key,
             data: {
                 type: 'number',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         swagger: {
             name: key,
             data: {
                 type: 'number',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         joi: {
             name: key,
             data: {
                 type: 'number',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         children: []
@@ -39,14 +42,16 @@ const String = (key, data) => {
             name: key,
             data: {
                 type: 'string',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         swagger: {
             name: key,
             data: {
                 type: 'string',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         joi: {
@@ -55,7 +60,8 @@ const String = (key, data) => {
                 type: 'string',
                 required: data.required,
                 max: data.max,
-                encoding: data.encoding
+                encoding: data.encoding,
+				tag: data.tag
             }
         },
         children: []
@@ -75,7 +81,8 @@ const Array = (key, data) => {
             data: {
                 type: 'array',
                 required: data.required,
-				typeName: data.typeName
+				typeName: data.typeName,
+				tag: data.tag
             }
         },
         swagger: {
@@ -83,7 +90,8 @@ const Array = (key, data) => {
             data: {
                 type: 'array',
                 required: data.required,
-				typeName: data.typeName
+				typeName: data.typeName,
+				tag: data.tag
             }
         },
         joi: {
@@ -91,7 +99,8 @@ const Array = (key, data) => {
             data: {
                 type: 'array',
                 required: data.required,
-				typeName: data.typeName
+				typeName: data.typeName,
+				tag: data.tag
             }
         },
         children
@@ -106,7 +115,8 @@ const Enum = (key, data) => {
                 type: 'enum',
                 required: data.required,
                 values: data.values,
-                typeName: data.typeName
+                typeName: data.typeName,
+				tag: data.tag
             }
         },
         swagger: {
@@ -115,7 +125,8 @@ const Enum = (key, data) => {
                 type: 'enum',
                 required: data.required,
                 values: data.values,
-                typeName: data.typeName
+                typeName: data.typeName,
+				tag: data.tag
             }
         },
         joi: {
@@ -124,7 +135,8 @@ const Enum = (key, data) => {
                 type: 'enum',
                 required: data.required,
                 values: data.values,
-                typeName: data.typeName
+                typeName: data.typeName,
+				tag: data.tag
             }
         },
         children: []
@@ -137,21 +149,24 @@ const Date = (key, data) => {
             name: key,
             data: {
                 type: 'Date',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         swagger: {
             name: key,
             data: {
                 type: 'date',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         joi: {
             name: key,
             data: {
                 type: 'date',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         children: []
@@ -197,7 +212,8 @@ const Obj = (key, data) => {
                 required: data.required,
                 keys: data.keys,
                 values: data.values,
-				typeName: data.typeName
+				typeName: data.typeName,
+				tag: data.tag
             }
         },
         swagger: {
@@ -207,7 +223,8 @@ const Obj = (key, data) => {
                 required: data.required,
                 keys: data.keys,
                 values: data.values,
-				typeName: data.typeName
+				typeName: data.typeName,
+				tag: data.tag
             }
         },
         joi: {
@@ -217,7 +234,8 @@ const Obj = (key, data) => {
                 required: data.required,
                 keys: data.keys,
                 values: data.values,
-				typeName: data.typeName
+				typeName: data.typeName,
+				tag: data.tag
             }
         },
         children: []
@@ -230,21 +248,24 @@ const Boolean = (key, data) => {
             name: key,
             data: {
                 type: 'boolean',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         swagger: {
             name: key,
             data: {
                 type: 'boolean',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         joi: {
             name: key,
             data: {
                 type: 'boolean',
-                required: data.required
+                required: data.required,
+				tag: data.tag
             }
         },
         children: []

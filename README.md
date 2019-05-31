@@ -458,9 +458,51 @@ export interface Object3 {
 }
 ```
 
+### Example 7: JOI Tags
+
+Joi tags are a subset of tags in general. There are three, one for Body, one for Params, and one for Query. When used, they generate a special Joi structure that is designed to be loaded into `celebrate`.
+
+```
+const Object1 = {
+	type: Constants.Types.Model,
+	fields: {
+		field1: {
+			type: FieldTypes.Boolean,
+			tag: Constants.JoiTags.Body
+		},
+		field2: {
+			type: FieldTypes.String,
+			tag: Constants.JoiTags.Query
+		},
+		field3: {
+			type: FieldTypes.String,
+			tag: Constants.JoiTags.Params
+		}
+	}
+}
+```
+
+The Joi output is as follows:
+
+```
+export const Object1 = Joi.object({
+    body: {
+        field1: Joi.boolean().label('field1').optional()
+    },
+    params: {
+        field3: Joi.string().label('field3').optional()
+    },
+    query: {
+        field2: Joi.string().label('field2').optional()
+    }
+});
+
+```
+
+This does not affect Swagger or Typescript generation.
+
 ## ToDo
 * Inheritance
-* Arrays of custom types
 * tags and compiling with tags
 * Swagger params vs body
 * Allow dynamic names via callbacks

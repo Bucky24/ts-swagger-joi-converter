@@ -28,6 +28,10 @@ const SecondChild = {
                     }
                 }
             }
+		},
+		field_2_2: {
+			type: FieldTypes.Boolean,
+			required: false
 		}
 	}
 }

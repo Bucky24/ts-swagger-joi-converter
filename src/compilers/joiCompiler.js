@@ -1,4 +1,5 @@
 const Utils = require('../utils');
+const Constants = require('../constants');
 const _ = require('lodash');
 
 function buildJoi(object, indent, enums, objects) {
@@ -18,10 +19,42 @@ function buildJoi(object, indent, enums, objects) {
             return;
         }
         joi += `export const ${module.name} = Joi.object({\n`;
+		
+		let anyTagsFound = false;
+		const bySection = {
+			body: [],
+			params: [],
+			query: []
+		};
 
         module.fields.forEach((field) => {
-            joi += buildJoiField(field, enums, objects) + '\n';
+			if (field.data.tag === Constants.JoiTags.Body) {
+				bySection.body.push(field);
+				anyTagsFound = true;
+			} else if (field.data.tag === Constants.JoiTags.Query) {
+				bySection.query.push(field);
+				anyTagsFound = true;
+			} else if (field.data.tag === Constants.JoiTags.Params) {
+				bySection.params.push(field);
+				anyTagsFound = true;
+			}
         });
+		
+		if (!anyTagsFound) {
+			// if no tags just build a general object
+	        joi += buildJoiFields(module.fields, enums, objects, 1);
+		} else {
+			// build all three objects
+			Object.keys(bySection).forEach((section, index) => {
+				joi += `${Utils.getIndent(1)}${section}: {\n`;
+				joi += buildJoiFields(bySection[section], enums, objects, 2);
+				joi += `${Utils.getIndent(1)}}`;
+				if (index < Object.keys(bySection).length-1) {
+					joi += ',';
+				}
+				joi += '\n';
+			});
+		}
 
         joi += '});\n\n';
     });
@@ -29,9 +62,22 @@ function buildJoi(object, indent, enums, objects) {
     return joi;
 }
 
-function buildJoiField(object, enums, objects, indent=1) {
+function buildJoiFields(fields, enums, objects, indent) {
+	let joi = '';
+	fields.forEach((field, index) => {
+		joi += buildJoiField(field, enums, objects, indent, index < fields.length -1) + '\n';
+	});
+	
+	return joi;
+}
+
+function buildJoiField(object, enums, objects, indent=1, comma) {
 	const line = getJoiLine(object, enums, objects, indent);
-    return `${Utils.getIndent(indent)}${object.name}: ${line}`;
+    let fullLine = `${Utils.getIndent(indent)}${object.name}: ${line}`;
+	if (comma) {
+		fullLine += ',';
+	}
+	return fullLine;
 }
 
 function processObject(name, typeObject, enums) {
@@ -73,9 +119,7 @@ function getJoiLine(object, enums, objects, indent) {
 				throw new Error(`Unable to find object for typename ${object.data.typeName}`);
 			}
 			const childModule = processObject(object.data.typeName, typeObject, enums);
-			childModule.fields.forEach((field) => {
-				joi += buildJoiField(field, enums, objects, indent+1) + '\n';
-			});
+			joi += buildJoiFields(childModule.fields, enums, objects, indent + 1);
 			joi += `${Utils.getIndent(indent)}})`;
 		} else if (object.data.keys) {
 			if (object.data.values.data.typeName) {
@@ -86,10 +130,7 @@ function getJoiLine(object, enums, objects, indent) {
 				}
 				
 				const childModule = processObject(object.data.values.data.typeName, typeObject, enums);
-				let childJoi = '';
-				childModule.fields.forEach((field) => {
-					childJoi += buildJoiField(field, enums, objects, indent+1) + '\n';
-				});
+				const childJoi = buildJoiFields(childModule.fields, enums, objects, indent+1);
 				// using default for now
 				joi += `/.*/,[Joi.object({\n${childJoi}${Utils.getIndent(indent)}})]`
 			
@@ -110,7 +151,6 @@ function getJoiLine(object, enums, objects, indent) {
     } else {
         joi += '.optional()';
     }
-    joi += ',';
 
     return joi;
 }

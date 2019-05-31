@@ -149,7 +149,8 @@ function getHalfIndent(count) {
 function processOutput(outputObj, settings) {
 	let {
 		outputFormat, // the format to output to
-		outputDirectory // directory to create files in
+		outputDirectory, // directory to create files in
+		filePrefix // any prefix you want to add to the files
 	} = settings;
 
 	if (!outputFormat) {
@@ -183,7 +184,8 @@ function processOutput(outputObj, settings) {
 		outputData.forEach((object) => {
 			rimraf.sync(object.directory);
 			fs.mkdirSync(object.directory);
-			const file = path.join(object.directory, `${object.key}.${getFileExtension(object.key)}`);
+			const usePrefix = filePrefix || object.key
+			const file = path.join(object.directory, `${usePrefix}.${getFileExtension(object.key)}`);
 			fs.writeFileSync(file, `${getFilePrepend(object.key)}${object.data}`, 'utf8');
 		});
 		return true;

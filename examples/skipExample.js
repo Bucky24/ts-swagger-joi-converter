@@ -32,5 +32,6 @@ const Object3 = {
 
 compileObjects({ Object1, Object2, Object3 }, {
 	outputFormat: Constants.OutputTypes.File,
-	outputDirectory: __dirname
+	outputDirectory: __dirname,
+	filePrefix: 'skipExample'
 });

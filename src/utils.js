@@ -8,7 +8,7 @@ const Compilers = require('./compilers');
 const INDENT_SIZE = 4;
 
 function flattenObject(object, key, parentName, enums) {
-    //console.log(object[key], key, object);
+    //console.log(object.type, key, typeof object, JSON.stringify(object, null, 4), object);
     if (object.type === 'model') {
         let modules = [
             {
@@ -18,6 +18,7 @@ function flattenObject(object, key, parentName, enums) {
             }
         ];
         object.fields.forEach((field) => {
+			//console.log('flattening', JSON.stringify(field, null, 4));
             const result = flattenObject(field, key, object.name, enums);
             modules = [
                 ...modules,
@@ -41,7 +42,6 @@ function flattenObject(object, key, parentName, enums) {
         if (type === 'array' && object.children.length > 0) {
             const firstChild = object.children[0][key];
             if (Constants.standardTypes.includes(firstChild.data.type)) {
-                //console.log(object[key]);
                 return {
                     modules: [], fields: [{
                         name: object[key].name,
@@ -120,7 +120,6 @@ function flattenObject(object, key, parentName, enums) {
             if (newObj.data.values && newObj.data.values.type) {
                 // now we have to process it
                 const result = flattenObject(newObj.data.values, key, object.name, enums);
-                //console.log('result is', result);
                 modules = [
                     ...modules,
                     ...result.modules

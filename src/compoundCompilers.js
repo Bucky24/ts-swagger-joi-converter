@@ -1,6 +1,7 @@
 const Constants = require('./constants');
 const Compilers = require('./compilers');
 const Utils = require('./utils');
+const _ = require('lodash');
 
 function compileObjects(object, settings = {}) {
     const enums = {};
@@ -16,7 +17,7 @@ function compileObjects(object, settings = {}) {
     let joiFileContents = '';
 
     Object.keys(object).forEach((contentName) => {
-        const data = object[contentName];
+        const data = _.cloneDeep(object[contentName]);
 
         const result = compileObject(contentName, data, enums, objects);
 		if (result.typeScript) {
@@ -32,7 +33,7 @@ function compileObjects(object, settings = {}) {
         if (data.type === Constants.Types.Enum) {
             enums[contentName] = data.values;
         } else if (data.type === Constants.Types.Model) {
-        	objects[contentName] = data;
+        	objects[contentName] = object[contentName];
         }
     });
 

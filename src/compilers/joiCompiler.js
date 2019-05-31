@@ -1,4 +1,5 @@
 const Utils = require('../utils');
+const _ = require('lodash');
 
 function buildJoi(object, indent, enums, objects) {
     if (indent) {
@@ -33,6 +34,16 @@ function buildJoiField(object, enums, objects, indent=1) {
     return `${Utils.getIndent(indent)}${object.name}: ${line}`;
 }
 
+function processObject(name, typeObject, enums) {
+	const newTypeObj = _.cloneDeep(typeObject);
+	const processedData = Utils.processObjectForCompiling(name, newTypeObj);
+	const result = Utils.flattenObject(processedData, 'joi', undefined, enums);
+	let childJoi = '';
+	const childModule = result.modules[0];
+	
+	return childModule;
+}
+
 function getJoiLine(object, enums, objects, indent) {
     let joi = '';
     if (object.data.array) {
@@ -56,19 +67,34 @@ function getJoiLine(object, enums, objects, indent) {
         joi += `Joi.string().only([${valuesWithQuotes.join(', ')}])`;
     } else if (object.data.type === 'object') {
 		if (object.data.typeName) {
+			joi += `Joi.object({\n`;
 			const typeObject = objects[object.data.typeName];
 			if (!typeObject) {
 				throw new Error(`Unable to find object for typename ${object.data.typeName}`);
 			}
-			
-			const processedData = Utils.processObjectForCompiling(object.data.typeName, typeObject);
-			const result = Utils.flattenObject(processedData, 'joi', undefined, enums);
-			const childModule = result.modules[0];
-			joi += `Joi.object({\n`;
+			const childModule = processObject(object.data.typeName, typeObject, enums);
 			childModule.fields.forEach((field) => {
 				joi += buildJoiField(field, enums, objects, indent+1) + '\n';
 			});
 			joi += `${Utils.getIndent(indent)}})`;
+		} else if (object.data.keys) {
+			if (object.data.values.data.typeName) {
+				joi += `Joi.object().pattern(`;
+				const typeObject = objects[object.data.values.data.typeName];
+				if (!typeObject) {
+					throw new Error(`Unable to find object for typename ${object.data.values.data.typeName}`);
+				}
+				
+				const childModule = processObject(object.data.values.data.typeName, typeObject, enums);
+				let childJoi = '';
+				childModule.fields.forEach((field) => {
+					childJoi += buildJoiField(field, enums, objects, indent+1) + '\n';
+				});
+				// using default for now
+				joi += `/.*/,[Joi.Object({\n${childJoi}${Utils.getIndent(indent)})]`
+			
+				joi += `)`;
+			}
 		}
     } else {
         joi += `Joi.${object.data.type}()`;

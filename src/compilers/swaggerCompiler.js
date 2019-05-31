@@ -46,7 +46,13 @@ function buildSwaggerField(object) {
     } else if (object.data.type === 'date') {
         swagger += `${getHalfIndent(4)}type: string\n`;
         swagger += `${getHalfIndent(4)}format: date-time`;
-    } else {
+    } else if (object.data.type === 'object') {
+	    swagger += `${getHalfIndent(4)}type: object\n`;
+		if (object.data.typeName) {
+            swagger += `${getHalfIndent(5)}schema:\n`;
+            swagger += `${getHalfIndent(6)}$ref: '#/components/schemas/${object.data.typeName}`;
+		}
+	} else {
         swagger += `${getHalfIndent(4)}type: ${object.data.type}`;
     }
     if (object.data.required) {

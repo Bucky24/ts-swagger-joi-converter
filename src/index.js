@@ -9,6 +9,7 @@ const {
 module.exports = {
     FieldTypes,
     Constants,
+	Types: Constants.Types,
     Compilers,
     compileObject,
     compileObjects

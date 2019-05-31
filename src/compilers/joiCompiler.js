@@ -1,12 +1,12 @@
-const { flattenObject, getIndent } = require('../utils');
+const Utils = require('../utils');
 
-function buildJoi(object, indent, enums) {
+function buildJoi(object, indent, enums, objects) {
     if (indent) {
         INDENT_SIZE = indent;
     }
     //console.log(JSON.stringify(object, null, 4));
     // flattens them out, basically
-    const result = flattenObject(object, 'joi', undefined, enums);
+    const result = Utils.flattenObject(object, 'joi', undefined, enums);
     const modules = result.modules;
     //console.log(JSON.stringify(modules, null, 4));
 
@@ -19,7 +19,7 @@ function buildJoi(object, indent, enums) {
         joi += `export const ${module.name} = Joi.object({\n`;
 
         module.fields.forEach((field) => {
-            joi += buildJoiField(field) + '\n';
+            joi += buildJoiField(field, enums, objects) + '\n';
         });
 
         joi += '});\n\n';
@@ -28,11 +28,12 @@ function buildJoi(object, indent, enums) {
     return joi;
 }
 
-function buildJoiField(object) {
-    return `${getIndent(1)}${object.name}: ${getJoiLine(object)}`;
+function buildJoiField(object, enums, objects, indent=1) {
+	const line = getJoiLine(object, enums, objects, indent);
+    return `${Utils.getIndent(indent)}${object.name}: ${line}`;
 }
 
-function getJoiLine(object) {
+function getJoiLine(object, enums, objects, indent) {
     let joi = '';
     if (object.data.array) {
         const realFieldData = {
@@ -53,6 +54,22 @@ function getJoiLine(object) {
             return `'${value.toLowerCase()}'`;
         });
         joi += `Joi.string().only([${valuesWithQuotes.join(', ')}])`;
+    } else if (object.data.type === 'object') {
+		if (object.data.typeName) {
+			const typeObject = objects[object.data.typeName];
+			if (!typeObject) {
+				throw new Error(`Unable to find object for typename ${object.data.typeName}`);
+			}
+			
+			const processedData = Utils.processObjectForCompiling(object.data.typeName, typeObject);
+			const result = Utils.flattenObject(processedData, 'joi', undefined, enums);
+			const childModule = result.modules[0];
+			joi += `Joi.object({\n`;
+			childModule.fields.forEach((field) => {
+				joi += buildJoiField(field, enums, objects, indent+1) + '\n';
+			});
+			joi += `${Utils.getIndent(indent)}})`;
+		}
     } else {
         joi += `Joi.${object.data.type}()`;
         if (object.data.max && object.data.encoding) {

@@ -63,31 +63,38 @@ const String = (key, data) => {
 };
 
 const Array = (key, data) => {
-    const subType = data.subType.type(null, data.subType);
+	const children = [];
+	if (data.subType) {
+    	const subType = data.subType.type(null, data.subType);
+		children.push(subType);
+	}
 
     return {
         typeScript: {
             name: key,
             data: {
                 type: 'array',
-                required: data.required
+                required: data.required,
+				typeName: data.typeName
             }
         },
         swagger: {
             name: key,
             data: {
                 type: 'array',
-                required: data.required
+                required: data.required,
+				typeName: data.typeName
             }
         },
         joi: {
             name: key,
             data: {
                 type: 'array',
-                required: data.required
+                required: data.required,
+				typeName: data.typeName
             }
         },
-        children: [subType]
+        children
     };
 }
 
@@ -189,7 +196,8 @@ const Obj = (key, data) => {
                 type: 'object',
                 required: data.required,
                 keys: data.keys,
-                values: data.values
+                values: data.values,
+				typeName: data.typeName
             }
         },
         swagger: {
@@ -198,7 +206,8 @@ const Obj = (key, data) => {
                 type: 'object',
                 required: data.required,
                 keys: data.keys,
-                values: data.values
+                values: data.values,
+				typeName: data.typeName
             }
         },
         joi: {
@@ -207,7 +216,8 @@ const Obj = (key, data) => {
                 type: 'object',
                 required: data.required,
                 keys: data.keys,
-                values: data.values
+                values: data.values,
+				typeName: data.typeName
             }
         },
         children: []

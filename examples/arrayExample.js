@@ -1,5 +1,15 @@
 const { compileObjects, FieldTypes, Constants } = require('../src/index');
 
+const ObjectOne = {
+	type: Constants.Types.Model,
+	fields: {
+		field1_1: {
+			type: FieldTypes.String,
+			required: true
+		},
+	}
+};
+
 const ArrayOne = {
 	type: Constants.Types.Model,
 	fields: {
@@ -23,11 +33,16 @@ const ArrayOne = {
 					}
 				}
 			}
-		}
+		},
+		field3: {
+			type: FieldTypes.Array,
+			required: true,
+			typeName: 'ObjectOne'
+		},
 	}
 };
 
-console.log(compileObjects({ ArrayOne }, {
+compileObjects({ ArrayOne }, {
 	outputFormat: Constants.OutputTypes.File,
 	outputDirectory: __dirname
-}));
+});

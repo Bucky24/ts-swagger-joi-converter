@@ -34,7 +34,11 @@ function buildSwaggerField(object) {
     if (object.data.array) {
         swagger += `${getHalfIndent(4)}type: array\n`;
         swagger += `${getHalfIndent(5)}items:\n`;
-        swagger += `${getHalfIndent(6)}type: ${object.data.type}`;
+		if (object.data.typeName) {
+			swagger += `${getHalfIndent(6)}$ref: '#/components/schemas/${object.data.typeName}'`;
+		} else {
+        	swagger += `${getHalfIndent(6)}type: ${object.data.type}`;
+		}
     } else if (object.data.enum) {
         //console.log('hello');
 		const lowerCaseValues = object.data.values.map((value) => {
@@ -49,8 +53,7 @@ function buildSwaggerField(object) {
     } else if (object.data.type === 'object') {
 	    swagger += `${getHalfIndent(4)}type: object\n`;
 		if (object.data.typeName) {
-            swagger += `${getHalfIndent(5)}schema:\n`;
-            swagger += `${getHalfIndent(6)}$ref: '#/components/schemas/${object.data.typeName}`;
+            swagger += `${getHalfIndent(6)}$ref: '#/components/schemas/${object.data.typeName}'`;
 		}
 	} else {
         swagger += `${getHalfIndent(4)}type: ${object.data.type}`;

@@ -342,10 +342,125 @@ compileObjects({ FirstChild, ParentObject }, {
 });
 ```
 
+*TypeScript*
+```
+export interface FirstChild {
+    field1_1: string;
+}
+
+export interface ParentObject {
+    child: FirstChild;
+}
+```
+*Swagger*
+```
+components:
+  schemas:
+    FirstChild:
+      field1_1:
+        type: string
+        required: true
+
+    ParentObject:
+      child:
+        type: object
+            $ref: '#/components/schemas/FirstChild'
+        required: true
+```
+*Joi*
+```
+export const FirstChild = Joi.object({
+    field1_1: Joi.string().label('field1_1').required(),
+});
+
+export const ParentObject = Joi.object({
+    child: Joi.object({
+        field1_1: Joi.string().label('field1_1').required(),
+    }).label('child').required(),
+});
+
+```
+
+### Example 6: Skipping Compilation
+
+Sometimes we may not want certain objects to be compiled in certain situations. For example, take the models for example #5. The FirstChild is never used in Joi, so it probably should not be output in the Joi file.
+
+In order to handle situations like this, we can use the `skipJoi`, `skipTypeScript`, and `skipSwagger` fields on the models. See example below
+
+```
+const Object1 = {
+	type: Constants.Types.Model,
+	fields: {
+		field1: {
+			type: FieldTypes.String
+		}
+	},
+	skipJoi: true
+}
+
+const Object2 = {
+	type: Constants.Types.Model,
+	fields: {
+		field1: {
+			type: FieldTypes.String
+		}
+	},
+	skipTypeScript: true
+}
+
+const Object3 = {
+	type: Constants.Types.Model,
+	fields: {
+		field1: {
+			type: FieldTypes.String
+		}
+	},
+	skipSwagger: true
+}
+```
+
+*Joi*
+```
+import Joi from 'joi';
+
+export const Object2 = Joi.object({
+    field1: Joi.string().label('field1').optional(),
+});
+
+export const Object3 = Joi.object({
+    field1: Joi.string().label('field1').optional(),
+});
+
+```
+
+*Swagger*
+```
+components:
+  schemas:
+    Object1:
+      field1:
+        type: string
+
+    Object2:
+      field1:
+        type: string
+
+```
+
+*TypeScript*
+```
+export interface Object1 {
+    field1?: string;
+}
+
+export interface Object3 {
+    field1?: string;
+}
+```
+
 ## ToDo
 * Inheritance
 * Arrays of custom types
 * tags and compiling with tags
 * Swagger params vs body
 * Allow dynamic names via callbacks
-* Support for objects as parameters of arrays in swagger and Joi

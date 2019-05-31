@@ -37,12 +37,15 @@ const ArrayOne = {
 		field3: {
 			type: FieldTypes.Array,
 			required: true,
-			typeName: 'ObjectOne'
+			subType: {
+				type: FieldTypes.Obj,
+				typeName: 'ObjectOne'
+			}
 		},
 	}
 };
 
-compileObjects({ ArrayOne }, {
+compileObjects({ ObjectOne, ArrayOne }, {
 	outputFormat: Constants.OutputTypes.File,
 	outputDirectory: __dirname
 });

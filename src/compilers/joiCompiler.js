@@ -44,7 +44,7 @@ function getJoiLine(object, enums, objects, indent) {
         delete realFieldData.array;
         delete realFieldData.label;
         //console.log(realFieldData);
-        let line = getJoiLine({ data: realFieldData });
+        let line = getJoiLine({ data: realFieldData }, enums, objects, indent);
         // remove comma
         line = line.substring(0, line.length - 1);
         //console.log(line);

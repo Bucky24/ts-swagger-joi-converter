@@ -32,7 +32,8 @@ const SecondChild = {
 		field_2_2: {
 			type: FieldTypes.Boolean,
 			required: false
-		}
+		},
+		
 	}
 }
 
@@ -43,7 +44,19 @@ const ParentObject = {
 			type: FieldTypes.Obj,
 			typeName: 'SecondChild',
 			required: true
-		}
+		},
+		field_parent_1: {
+            type: FieldTypes.Obj,
+            keys: {
+                type: FieldTypes.Number
+            },
+            values: {
+            	type: FieldTypes.Obj,
+				data: {
+                	typeName: 'FirstChild'
+				}
+            }
+		},
 	}
 };
 

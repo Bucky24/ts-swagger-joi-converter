@@ -24,7 +24,6 @@ function buildJoi(object, indent, enums, objects) {
         if (module.enum) {
             return;
         }
-        joi += `export const ${module.name} = Joi.object({\n`;
 		
 		let anyTagsFound = false;
 		const bySection = {};
@@ -40,10 +39,15 @@ function buildJoi(object, indent, enums, objects) {
 			}
         });
 		
+		joi += `export const ${module.name} = `;
+		
 		if (!anyTagsFound) {
 			// if no tags just build a general object
+        	joi += `Joi.object({\n`;
 	        joi += buildJoiFields(module.fields, enums, objects, 1);
+        	joi += '});\n\n';
 		} else {
+			joi += `{\n`;
 			const sectionKeys = Object.keys(bySection);
 			// build all sections
 			sectionKeys.forEach((section, index) => {
@@ -51,7 +55,7 @@ function buildJoi(object, indent, enums, objects) {
 				if (bySection[section].length === 0) {
 					return;
 				}
-				joi += `${Utils.getIndent(1)}${section}: {\n`;
+				joi += `${Utils.getIndent(1)}${section}: Joi.object({\n`;
 				joi += buildJoiFields(bySection[section], enums, objects, 2);
 				joi += `${Utils.getIndent(1)}}`;
 				if (index < sectionKeys.length-1) {
@@ -59,9 +63,9 @@ function buildJoi(object, indent, enums, objects) {
 				}
 				joi += '\n';
 			});
+			joi += '}\n';
 		}
 
-        joi += '});\n\n';
     });
 
     return joi;

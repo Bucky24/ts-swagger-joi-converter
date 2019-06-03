@@ -57,13 +57,13 @@ function buildJoi(object, indent, enums, objects) {
 				}
 				joi += `${Utils.getIndent(1)}${section}: Joi.object({\n`;
 				joi += buildJoiFields(bySection[section], enums, objects, 2);
-				joi += `${Utils.getIndent(1)}}`;
+				joi += `${Utils.getIndent(1)}})`;
 				if (index < sectionKeys.length-1) {
 					joi += ',';
 				}
 				joi += '\n';
 			});
-			joi += '}\n';
+			joi += '};\n';
 		}
 
     });

@@ -1,6 +1,6 @@
 {
   "name": "ts-swagger-joi-converter",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "",
   "main": "src/index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/Bucky24/ts-swagger-joi-converter.git"
   },
   "author": "Robbert Wijtman",
-  "license": "Apache-2.0",
+  "license": "MIT ",
   "bugs": {
     "url": "https://github.com/Bucky24/ts-swagger-joi-converter/issues"
   },

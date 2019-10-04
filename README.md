@@ -12,7 +12,7 @@ The main function you'll want to use is `compileObjects`, which takes in an obje
 
 ### Example 1, a standard object
 
-```
+```ts
 const { FieldTypes, Constants, compileObjects } from 'ts-swagger-joi';
 
 const RequestObjectOne = {
@@ -57,7 +57,7 @@ At this point, `output` will contain three fields:
 * joi - this contains the joi output
 
 TypeScript data will look like this:
-```
+```ts
 export interface RequestObjectOne {
 	strField?: string;
 	createdAt: Date;
@@ -70,7 +70,7 @@ export interface RequestObjectTwo {
 ```
 
 Swagger data will look like this:
-```
+```yaml
 components:
   schemas:
     RequestObjectOne:
@@ -88,8 +88,8 @@ components:
 ```
 
 Joi data will look like this:
-```
-const Joi = require('joi');
+```js
+const Joi = require('@hapi/joi');
 
 export const RequestObjectOne = Joi.object({
 	strField: Joi.string().max(100, 'utf8').label('strField').optional(),
@@ -106,7 +106,7 @@ export const RequestObjectTwo = Joi.object({
 
 Enums are handled very differently in TypeScript vs other frameworks, and there are also two ways to create them.
 
-```
+```ts
 const { FieldTypes, Constants, compileObjects } from 'ts-swagger-joi';
 
 const EnumObject = {
@@ -133,7 +133,7 @@ const ModelObject = {
 After running these objects through the compiler, you will have the following:
 
 *TypeScript:*
-```
+```ts
 export enum EnumObject {
 	val1 = 'val1',
 	val2 = 'val2'
@@ -150,7 +150,7 @@ export interface ModelObject {
 }
 ```
 *Swagger*
-```
+```yaml
 components:
   schemas:
     ModelObject:
@@ -162,8 +162,8 @@ components:
 		enum: [foo, bar]
 ```
 *Joi*
-```
-const Joi = require('joi');
+```js
+const Joi = require('@hapi/joi');
 
 export const ModelObject = Joi.object({
 	field1: Joi.string().only(['val1', 'val2]).label('field1').required(),
@@ -176,7 +176,7 @@ Notice that the compiler can use both a pre-created enum for TypeScript as well 
 
 There are a few different options for objects. Currently only TypeScript supports most of them-swagger and Joi will just show a simple object type.
 
-```
+```js
 const ObjectOne = {
 	type: Constants.Types.Model,
 	fields: {
@@ -210,7 +210,7 @@ const ObjectTwo = {
 }
 ```
 *TypeScript*
-```
+```ts
 export interface ObjectOne {
     [item_id: string]: string;
 }
@@ -221,7 +221,7 @@ export interface ObjectTwo {
 }
 ```
 *Swagger*
-```
+```yaml
 components:
   schemas:
     ObjectOne:
@@ -237,7 +237,7 @@ components:
         type: object
 ```
 *Joi*
-```
+```ts
 export const ObjectOne = Joi.object({
     item_id: Joi.object().label('item_id').required(),
 });
@@ -252,7 +252,7 @@ export const ObjectTwo = Joi.object({
 
 Arrays are supported as both fields on their own, or as values of objects.
 
-```
+```ts
 const ArrayOne = {
 	type: Constants.Types.Model,
 	fields: {
@@ -281,14 +281,14 @@ const ArrayOne = {
 }
 ```
 *TypeScript*
-```
+```ts
 export interface ArrayOne {
     field1: string[];
     [field2: string]: string[];
 }
 ```
 *Swagger*
-```
+```yaml
 components:
   schemas:
     ArrayOne:
@@ -311,7 +311,7 @@ export const ArrayOne = Joi.object({
 ### Example 5: Nested Objects
 An object is nested, similar to arrays, by using the `typeName` field. The referenced object must have already been compiled.
 
-```
+```js
 const { compileObjects, FieldTypes, Constants } = require('../src/index');
 
 const FirstChild = {
@@ -343,7 +343,7 @@ compileObjects({ FirstChild, ParentObject }, {
 ```
 
 *TypeScript*
-```
+```ts
 export interface FirstChild {
     field1_1: string;
 }
@@ -353,7 +353,7 @@ export interface ParentObject {
 }
 ```
 *Swagger*
-```
+```yaml
 components:
   schemas:
     FirstChild:
@@ -368,7 +368,7 @@ components:
         required: true
 ```
 *Joi*
-```
+```ts
 export const FirstChild = Joi.object({
     field1_1: Joi.string().label('field1_1').required(),
 });
@@ -387,7 +387,7 @@ Sometimes we may not want certain objects to be compiled in certain situations. 
 
 In order to handle situations like this, we can use the `skipJoi`, `skipTypeScript`, and `skipSwagger` fields on the models. See example below
 
-```
+```ts
 const Object1 = {
 	type: Constants.Types.Model,
 	fields: {
@@ -420,7 +420,7 @@ const Object3 = {
 ```
 
 *Joi*
-```
+```ts
 import Joi from '@hapi/joi';
 
 export const Object2 = Joi.object({
@@ -434,7 +434,7 @@ export const Object3 = Joi.object({
 ```
 
 *Swagger*
-```
+```yaml
 components:
   schemas:
     Object1:
@@ -448,7 +448,7 @@ components:
 ```
 
 *TypeScript*
-```
+```ts
 export interface Object1 {
     field1?: string;
 }
@@ -462,7 +462,7 @@ export interface Object3 {
 
 Joi tags are a subset of tags in general. There are three, one for Body, one for Params, and one for Query. When used, they generate a special Joi structure that is designed to be loaded into `celebrate`.
 
-```
+```ts
 const Object1 = {
 	type: Constants.Types.Model,
 	fields: {
@@ -484,7 +484,7 @@ const Object1 = {
 
 The Joi output is as follows:
 
-```
+```ts
 export const Object1 = Joi.object({
     body: {
         field1: Joi.boolean().label('field1').optional()

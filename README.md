@@ -421,7 +421,7 @@ const Object3 = {
 
 *Joi*
 ```
-import Joi from 'joi';
+import Joi from '@hapi/joi';
 
 export const Object2 = Joi.object({
     field1: Joi.string().label('field1').optional(),

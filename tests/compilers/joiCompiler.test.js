@@ -9,7 +9,7 @@ describe('joiCompiler', () => {
 					values: ['UPPER']
 				}
 			});
-			expect(result).toEqual("Joi.string().only(['upper']).optional(),");
+			expect(result).toEqual("Joi.string().only(['upper']).optional()");
 		});
 	})
 });

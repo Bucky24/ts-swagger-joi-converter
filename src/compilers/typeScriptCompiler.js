@@ -53,7 +53,6 @@ function buildTypescriptField(object) {
 }
 
 function buildTypescriptType(object) {
-    //console.log(object);
     let typeName = object.data ? object.data.type : '';
     if (object.data.typeName) {
         typeName = object.data.typeName;

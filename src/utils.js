@@ -60,7 +60,9 @@ function flattenObject(object, key, parentName, enums) {
             const enumName = object[key].data.typeName || `${parentName}_${object[key].name}`;
             if (enums[enumName]) {
                 object[key].data.values = enums[enumName];
+				object[key].data.typeName = enums[enumName];
             }
+
             if (!object[key].data.values) {
                 throw new Error(`Unable to get enum values for ${parentName} ${object[key].name}`);
             }
@@ -92,6 +94,7 @@ function flattenObject(object, key, parentName, enums) {
                         enum: true,
                         ...object[key].data,
                         type: enumName,
+						typeName: enumName,
                         values: object[key].data.values
                     }
                 }]

@@ -7,8 +7,7 @@ const FirstChild = {
 			type: FieldTypes.String,
 			required: true
 		},
-	},
-	skipJoi: true
+	}
 };
 
 const SecondChild = {

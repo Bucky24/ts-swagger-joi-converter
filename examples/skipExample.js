@@ -4,7 +4,7 @@ const Object1 = {
 	type: Constants.Types.Model,
 	fields: {
 		field1: {
-			type: FieldTypes.Boolean
+			type: FieldTypes.String
 		}
 	},
 	skipJoi: true
@@ -14,7 +14,7 @@ const Object2 = {
 	type: Constants.Types.Model,
 	fields: {
 		field1: {
-			type: FieldTypes.Boolean
+			type: FieldTypes.String
 		}
 	},
 	skipTypeScript: true
@@ -24,7 +24,7 @@ const Object3 = {
 	type: Constants.Types.Model,
 	fields: {
 		field1: {
-			type: FieldTypes.Boolean
+			type: FieldTypes.String
 		}
 	},
 	skipSwagger: true

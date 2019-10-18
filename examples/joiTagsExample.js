@@ -35,5 +35,6 @@ const Object2 = {
 compileObjects({ Object1, Object2 }, {
 	outputFormat: Constants.OutputTypes.File,
 	outputDirectory: __dirname,
-	filePrefix: 'joiTypesExample'
+	filePrefix: 'joiTypesExample',
+	removeExistingDirectories: false
 });

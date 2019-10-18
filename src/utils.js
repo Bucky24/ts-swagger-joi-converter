@@ -153,11 +153,16 @@ function processOutput(outputObj, settings) {
 	let {
 		outputFormat, // the format to output to
 		outputDirectory, // directory to create files in
-		filePrefix // any prefix you want to add to the files
+		filePrefix, // any prefix you want to add to the files
+		removeExistingDirectories // should we remove existing output directories?
 	} = settings;
 
+	// defaults
 	if (!outputFormat) {
 		outputFormat = Constants.OutputTypes.Json;
+	}
+	if (removeExistingDirectories === undefined) {
+		removeExistingDirectories = true;
 	}
 
 	if (outputFormat === Constants.OutputTypes.Json) {
@@ -185,8 +190,12 @@ function processOutput(outputObj, settings) {
 			return object.data !== undefined;
 		});
 		outputData.forEach((object) => {
-			rimraf.sync(object.directory);
-			fs.mkdirSync(object.directory);
+			if (removeExistingDirectories) {
+				rimraf.sync(object.directory);
+			}
+			if (!fs.existsSync(object.directory)) {
+				fs.mkdirSync(object.directory);
+			}
 			const usePrefix = filePrefix || object.key
 			const file = path.join(object.directory, `${usePrefix}.${getFileExtension(object.key)}`);
 			fs.writeFileSync(file, `${getFilePrepend(object.key)}${object.data}`, 'utf8');

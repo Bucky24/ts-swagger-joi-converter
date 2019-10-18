@@ -701,6 +701,7 @@ When compiling your objects, The first parameter must be an object containing al
 | outputFormat | Determines the format the output takes |
 | outputDirectory | Only used when outputFormat is File. Determines the directory to use as a base for creating new files |
 | filePrefix | Only used when outputFormat is File. Sets the prefix of created files.
+| removeExistingDirectories | Only used when outputFormat is File. See description below for use |
 
 #### Output Format
 
@@ -725,6 +726,12 @@ The output would be:
 * <baseDir>/joi/myFiles.ts
 * <baseDir>/swagger/myFiles.yml
 * <baseDir>/typeScript/myFiles.ts
+	
+#### Remove Existing Directories
+
+This option, if set to true (default) will remove the existing swagger, typeScript, and joi directories with each call to compileObjects. If turned off, it will preserve these directories.
+
+Note, however, that if you don't use prefixes and set this to false, the "joi.ts", "swagger.yml" and "typeScript.ts" will still be overwritten by subsequent calls.
 
 ## ToDo
 * Inheritance

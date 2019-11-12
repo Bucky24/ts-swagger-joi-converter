@@ -6,6 +6,7 @@ const _ = require('lodash');
 function compileObjects(object, settings = {}) {
     const enums = {};
 	const objects = {};
+	const rawObjects = {};
 	
 	const {
 		outputFormat, // the format to output to
@@ -17,9 +18,10 @@ function compileObjects(object, settings = {}) {
     let joiFileContents = '';
 
     Object.keys(object).forEach((contentName) => {
+		rawObjects[contentName] = object[contentName];
         const data = _.cloneDeep(object[contentName]);
 
-        const result = compileObject(contentName, data, enums, objects);
+        const result = compileObjectHelper(contentName, data, enums, objects, {}, rawObjects);
 		if (result.typeScript) {
         	typeScriptFileContents += result.typeScript;
 		}
@@ -44,14 +46,14 @@ function compileObjects(object, settings = {}) {
     }, settings);
 }
 
-function compileObject(contentName, data, enums={}, objects={}, settings={}) {
+function compileObjectHelper(contentName, data, enums={}, objects={}, settings={}, rawObjects={}) {
     console.log(`Compiling ${contentName}`);
 
     if (!data.type) {
         data.type = Constants.Types.Model;
     }
 	
-	const topLevel = Utils.processObjectForCompiling(contentName, data);
+	const topLevel = Utils.processObjectForCompiling(contentName, data, rawObjects);
 	
 	const skipSwagger = data.skipSwagger || false;
 	const skipTypeScript = data.skipTypeScript || false;
@@ -72,6 +74,10 @@ function compileObject(contentName, data, enums={}, objects={}, settings={}) {
 	}
 
     return Utils.processOutput(output, settings);
+}
+
+function compileObject(contentName, data, settings={}) {
+    return compileObjectHelper(contentName, data, {}, {}, settings);
 }
 
 module.exports = {

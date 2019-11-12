@@ -14,7 +14,8 @@ function flattenObject(object, key, parentName, enums) {
             {
                 name: object.name,
                 extends: object.extends,
-                fields: []
+                fields: [],
+				extendedFields: []
             }
         ];
         object.fields.forEach((field) => {
@@ -26,6 +27,19 @@ function flattenObject(object, key, parentName, enums) {
             ];
             modules[0].fields = [
                 ...modules[0].fields,
+                ...result.fields
+            ]
+        });
+		
+        object.extendedFields.forEach((field) => {
+			//console.log('flattening', JSON.stringify(field, null, 4));
+            const result = flattenObject(field, key, object.name, enums);
+            modules = [
+                ...modules,
+                ...result.modules
+            ];
+            modules[0].extendedFields = [
+                ...modules[0].extendedFields,
                 ...result.fields
             ]
         });
@@ -230,7 +244,7 @@ function getFilePrepend(type) {
 	};
 }
 
-function processObjectForCompiling(contentName, data) {
+function processObjectForCompiling(contentName, data, rawObjects) {
     let topLevel;
 
     if (data.type === Constants.Types.Model) {
@@ -238,16 +252,32 @@ function processObjectForCompiling(contentName, data) {
             name: contentName,
             fields: [],
             type: 'model',
-            extends: data.extends
+            extends: data.extends,
+			extendedFields: []
         };
-
-        Object.keys(data.fields).forEach((key, index) => {
-            const keyData = data.fields[key];
-            if (!keyData.type) {
+		
+		const processField = (key, data) => {
+            if (!data.type) {
                 throw new Error(`No type field set for ${key}`);
             }
-            const result = keyData.type(key, keyData);
-            topLevel.fields.push(result)
+            const result = data.type(key, data);
+			return result;
+        };
+		
+		if (data.extends) {
+			const extended = rawObjects[data.extends];
+			if (!extended) {
+				throw new Error(`Cannot find extended object ${data.extends}`);
+			}
+	        Object.keys(extended.fields).forEach((key) => {
+	            const keyData = extended.fields[key];
+	            topLevel.extendedFields.push(processField(key, keyData));
+	        });
+		}
+
+        Object.keys(data.fields).forEach((key) => {
+            const keyData = data.fields[key];
+            topLevel.fields.push(processField(key, keyData));
         });
     } else if (data.type === Constants.Types.Enum) {
         topLevel = {

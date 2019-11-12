@@ -27,8 +27,13 @@ function buildJoi(object, indent, enums, objects) {
 		
 		let anyTagsFound = false;
 		const bySection = {};
+		
+		const allFields = [
+			...module.extendedFields,
+			...module.fields
+		];
 
-        module.fields.forEach((field) => {
+        allFields.forEach((field) => {
 			const section = sectionLookup[field.data.tag];
 			if (section) {
 				if (!bySection[section]) {
@@ -44,7 +49,7 @@ function buildJoi(object, indent, enums, objects) {
 		if (!anyTagsFound) {
 			// if no tags just build a general object
         	joi += `Joi.object({\n`;
-	        joi += buildJoiFields(module.fields, enums, objects, 1);
+	        joi += buildJoiFields(allFields, enums, objects, 1);
         	joi += '});\n\n';
 		} else {
 			joi += `{\n`;

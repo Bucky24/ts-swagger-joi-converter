@@ -48,9 +48,11 @@ function buildJoi(object, indent, enums, objects, rawObjects) {
 		
 		if (!anyTagsFound) {
 			// if no tags just build a general object
-        	joi += `Joi.object({\n`;
+        	joi += `Joi.object(`;
+			joi += '{\n';
 	        joi += buildJoiFields(allFields, enums, objects, 1, rawObjects);
-        	joi += '});\n\n';
+			joi += '}';
+        	joi += ');\n\n';
 		} else {
 			joi += `{\n`;
 			const sectionKeys = Object.keys(bySection);
@@ -60,7 +62,8 @@ function buildJoi(object, indent, enums, objects, rawObjects) {
 				if (bySection[section].length === 0) {
 					return;
 				}
-				joi += `${Utils.getIndent(1)}${section}: Joi.object({\n`;
+				joi += `${Utils.getIndent(1)}${section}: Joi.object(`;
+				joi += '{\n';
 				joi += buildJoiFields(bySection[section], enums, objects, 2, rawObjects);
 				joi += `${Utils.getIndent(1)}})`;
 				if (index < sectionKeys.length-1) {
@@ -68,7 +71,8 @@ function buildJoi(object, indent, enums, objects, rawObjects) {
 				}
 				joi += '\n';
 			});
-			joi += '};\n';
+			joi += '}';
+			joi += ';\n';
 		}
 
     });
@@ -127,14 +131,21 @@ function getJoiLine(object, enums, objects, indent, rawObjects) {
         joi += `Joi.string().only([${valuesWithQuotes.join(', ')}])`;
     } else if (object.data.type === 'object') {
 		if (object.data.typeName) {
-			joi += `Joi.object({\n`;
 			const typeObject = objects[object.data.typeName];
 			if (!typeObject) {
 				throw new Error(`Unable to find object for typename ${object.data.typeName}`);
 			}
 			const childModule = processObject(object.data.typeName, typeObject, enums, rawObjects);
-			joi += buildJoiFields(childModule.fields, enums, objects, indent + 1, rawObjects);
-			joi += `${Utils.getIndent(indent)}})`;
+			// if we've only got one field and it's got keys, then we need to process as a dynamic key row
+			if (childModule.fields.length === 1 && childModule.fields[0].data.keys) {
+				joi += getJoiLine({ data: childModule.fields[0].data }, enums, objects, 'foo', rawObjects);
+			} else {
+				joi += `Joi.object(`;
+				joi += '{\n';
+				joi += buildJoiFields(childModule.fields, enums, objects, indent + 1, rawObjects);
+				joi += `${Utils.getIndent(indent)}`;
+				joi += '})';
+			}
 		} else if (object.data.keys) {
 			joi += `Joi.object().pattern(/.*/,[`;
 			if (object.data.values.data.typeName) {

@@ -217,6 +217,11 @@ const ObjectTwo = {
                 typeName: 'ObjectOne'
             }
 		},
+		thing: {
+            type: FieldTypes.Obj,
+            typeName: 'ObjectOne',
+            required: true
+		},
 		props: {
 			type: FieldTypes.Obj
 		}
@@ -243,6 +248,7 @@ export interface ObjectOne {
 
 export interface ObjectTwo {
     item: ObjectOne;
+    thing: ObjectOne;
     props?: object;
 }
 ```
@@ -259,6 +265,10 @@ export interface ObjectTwo {
         type: object
 
         required: true
+      thing:
+        type: object
+            $ref: '#/components/schemas/ObjectOne'
+        required: true
       props:
         type: object
 ```
@@ -270,6 +280,7 @@ export const ObjectOne = Joi.object({
 
 export const ObjectTwo = Joi.object({
     item: Joi.object().label('item').required(),
+    thing: Joi.object().pattern(/.*/,[Joi.string()]).required().label('thing').required(),
     props: Joi.object().label('props').optional()
 });
 ```

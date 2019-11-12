@@ -26,6 +26,11 @@ const ObjectTwo = {
                 typeName: 'ObjectOne'
             }
 		},
+		thing: {
+            type: FieldTypes.Obj,
+            typeName: 'ObjectOne',
+            required: true
+		},
 		props: {
 			type: FieldTypes.Obj
 		}

@@ -61,15 +61,15 @@ function compileObjectHelper(contentName, data, enums={}, objects={}, settings={
 	
 	const output = {};
 	if (!skipTypeScript) {
-		const typeScriptFileContents = Compilers.compileTypescript(topLevel, undefined, enums, objects);
+		const typeScriptFileContents = Compilers.compileTypescript(topLevel, undefined, enums, objects, rawObjects);
 		output.typeScript = typeScriptFileContents;
 	}
 	if (!skipSwagger) {
-		const swaggerFileContents = Compilers.compileSwagger(topLevel, undefined, enums, objects);
+		const swaggerFileContents = Compilers.compileSwagger(topLevel, undefined, enums, objects, rawObjects);
 		output.swagger = swaggerFileContents;
 	}
 	if (!skipJoi) {
-		const joiFileContents = Compilers.compileJoi(topLevel, undefined, enums, objects);
+		const joiFileContents = Compilers.compileJoi(topLevel, undefined, enums, objects, rawObjects);
 		output.joi = joiFileContents;
 	}
 

@@ -8,7 +8,7 @@ const sectionLookup = {
 	[Constants.JoiTags.Params]: 'params'
 };
 
-function buildJoi(object, indent, enums, objects) {
+function buildJoi(object, indent, enums, objects, rawObjects) {
     if (indent) {
         INDENT_SIZE = indent;
     }
@@ -49,7 +49,7 @@ function buildJoi(object, indent, enums, objects) {
 		if (!anyTagsFound) {
 			// if no tags just build a general object
         	joi += `Joi.object({\n`;
-	        joi += buildJoiFields(allFields, enums, objects, 1);
+	        joi += buildJoiFields(allFields, enums, objects, 1, rawObjects);
         	joi += '});\n\n';
 		} else {
 			joi += `{\n`;
@@ -61,7 +61,7 @@ function buildJoi(object, indent, enums, objects) {
 					return;
 				}
 				joi += `${Utils.getIndent(1)}${section}: Joi.object({\n`;
-				joi += buildJoiFields(bySection[section], enums, objects, 2);
+				joi += buildJoiFields(bySection[section], enums, objects, 2, rawObjects);
 				joi += `${Utils.getIndent(1)}})`;
 				if (index < sectionKeys.length-1) {
 					joi += ',';
@@ -76,17 +76,17 @@ function buildJoi(object, indent, enums, objects) {
     return joi;
 }
 
-function buildJoiFields(fields, enums, objects, indent) {
+function buildJoiFields(fields, enums, objects, indent, rawObjects) {
 	let joi = '';
 	fields.forEach((field, index) => {
-		joi += buildJoiField(field, enums, objects, indent, index < fields.length -1) + '\n';
+		joi += buildJoiField(field, enums, objects, indent, index < fields.length -1, rawObjects) + '\n';
 	});
 	
 	return joi;
 }
 
-function buildJoiField(object, enums, objects, indent=1, comma) {
-	const line = getJoiLine(object, enums, objects, indent);
+function buildJoiField(object, enums, objects, indent=1, comma, rawObjects) {
+	const line = getJoiLine(object, enums, objects, indent, rawObjects);
     let fullLine = `${Utils.getIndent(indent)}${object.name}: ${line}`;
 	if (comma) {
 		fullLine += ',';
@@ -94,9 +94,9 @@ function buildJoiField(object, enums, objects, indent=1, comma) {
 	return fullLine;
 }
 
-function processObject(name, typeObject, enums) {
+function processObject(name, typeObject, enums, rawObjects) {
 	const newTypeObj = _.cloneDeep(typeObject);
-	const processedData = Utils.processObjectForCompiling(name, newTypeObj);
+	const processedData = Utils.processObjectForCompiling(name, newTypeObj, rawObjects);
 	const result = Utils.flattenObject(processedData, 'joi', undefined, enums);
 	let childJoi = '';
 	const childModule = result.modules[0];
@@ -104,7 +104,7 @@ function processObject(name, typeObject, enums) {
 	return childModule;
 }
 
-function getJoiLine(object, enums, objects, indent) {
+function getJoiLine(object, enums, objects, indent, rawObjects) {
     let joi = '';
     if (object.data.array) {
         const realFieldData = {
@@ -115,7 +115,7 @@ function getJoiLine(object, enums, objects, indent) {
         delete realFieldData.array;
         delete realFieldData.label;
         //console.log(realFieldData);
-        let line = getJoiLine({ data: realFieldData }, enums, objects, indent);
+        let line = getJoiLine({ data: realFieldData }, enums, objects, indent, rawObjects);
         // remove comma
         line = line.substring(0, line.length);
         //console.log(line);
@@ -132,8 +132,8 @@ function getJoiLine(object, enums, objects, indent) {
 			if (!typeObject) {
 				throw new Error(`Unable to find object for typename ${object.data.typeName}`);
 			}
-			const childModule = processObject(object.data.typeName, typeObject, enums);
-			joi += buildJoiFields(childModule.fields, enums, objects, indent + 1);
+			const childModule = processObject(object.data.typeName, typeObject, enums, rawObjects);
+			joi += buildJoiFields(childModule.fields, enums, objects, indent + 1, rawObjects);
 			joi += `${Utils.getIndent(indent)}})`;
 		} else if (object.data.keys) {
 			joi += `Joi.object().pattern(/.*/,[`;
@@ -143,8 +143,8 @@ function getJoiLine(object, enums, objects, indent) {
 					throw new Error(`Unable to find object for typename ${object.data.values.data.typeName}`);
 				}
 				
-				const childModule = processObject(object.data.values.data.typeName, typeObject, enums);
-				const childJoi = buildJoiFields(childModule.fields, enums, objects, indent+1);
+				const childModule = processObject(object.data.values.data.typeName, typeObject, enums, rawObjects);
+				const childJoi = buildJoiFields(childModule.fields, enums, objects, indent+1, rawObjects);
 				// using default for now
 				joi += `Joi.object({\n${childJoi}${Utils.getIndent(indent)}})`
 			

@@ -143,20 +143,55 @@ function getJoiLine(object, enums, objects, indent, rawObjects) {
         delete realFieldData.name;
         delete realFieldData.array;
         delete realFieldData.label;
+		let newIndent = indent;
         //console.log(realFieldData);
-        let line = getJoiLine({ data: realFieldData }, enums, objects, indent, rawObjects);
+		for (let i=0;i<object.data.array;i++) {
+			if (i > 0) {
+				newIndent ++;
+				joi += `\n${Utils.getIndent(newIndent)}`;
+			}
+	        joi += `Joi.array()`;
+			if (object.data.single) {
+				joi += '.single()';
+			}
+			joi += `.items(`;
+		}
+        let line = getJoiLine({ data: realFieldData }, enums, objects, newIndent, rawObjects);
         // remove comma
         line = line.substring(0, line.length);
         //console.log(line);
-        joi += `Joi.array()`;
-		if (object.data.single) {
-			joi += '.single()';
+		
+		joi += line;
+		
+		for (let i=0;i<object.data.array;i++) {
+			if (i > 0) {
+				newIndent --;
+				joi += `${Utils.getIndent(newIndent)}`;
+			}
+			// this is the closing ) for the items above
+	        joi += `)`;
+			// clean up if we're not on the last one
+			if (i < object.data.array-1) {
+			    if (object.data.required) {
+			        joi += '.required()';
+			    } else {
+			        joi += '.optional()';
+			    }
+				joi += '\n';
+			}
 		}
-		joi += `.items(${line})`;
     } else if (object.data.enum) {
-        const valuesWithQuotes = object.data.values.map((value) => {
-            return `'${value.toLowerCase()}'`;
-        });
+		let valuesWithQuotes;
+		if (Array.isArray(object.data.values)) {
+	        valuesWithQuotes = object.data.values.map((value) => {
+	            return `'${value.toLowerCase()}'`;
+	        });
+		} else {
+			// for joi we don't care about the key, just the value
+		    valuesWithQuotes = Object.values(object.data.values).map((value) => {
+		        return `'${value.toLowerCase()}'`;
+		    });
+		}
         joi += `Joi.string().only([${valuesWithQuotes.join(', ')}])`;
     } else if (object.data.type === 'object') {
 		if (object.data.typeName) {
@@ -167,11 +202,11 @@ function getJoiLine(object, enums, objects, indent, rawObjects) {
 			const childModule = processObject(object.data.typeName, typeObject, enums, rawObjects);
 			// if we've only got one field and it's got keys, then we need to process as a dynamic key row
 			if (childModule.fields.length === 1 && childModule.fields[0].data.keys) {
-				joi += getJoiLine({ data: childModule.fields[0].data }, enums, objects, 'foo', rawObjects);
+				joi += getJoiLine({ data: childModule.fields[0].data }, enums, objects, indent, rawObjects);
 			} else {
 				joi += `Joi.object(`;
 				joi += '{\n';
-				joi += buildJoiFields(childModule.fields, enums, objects, indent + 1, rawObjects);
+				joi += buildJoiFields(childModule.fields, enums, objects, indent+1, rawObjects);
 				joi += `${Utils.getIndent(indent)}`;
 				joi += '})';
 			}
@@ -182,11 +217,19 @@ function getJoiLine(object, enums, objects, indent, rawObjects) {
 				if (!typeObject) {
 					throw new Error(`Unable to find object for typename ${object.data.values.data.typeName}`);
 				}
-				
+
+				// if we've only got one field and it's got keys, then we need to process as a dynamic key row
 				const childModule = processObject(object.data.values.data.typeName, typeObject, enums, rawObjects);
-				const childJoi = buildJoiFields(childModule.fields, enums, objects, indent+1, rawObjects);
-				// using default for now
-				joi += `Joi.object({\n${childJoi}${Utils.getIndent(indent)}})`
+				if (childModule.fields.length === 1 && childModule.fields[0].data.keys) {
+					joi += getJoiLine({ data: childModule.fields[0].data }, enums, objects, indent, rawObjects);
+				} else {
+					const childJoi = buildJoiFields(childModule.fields, enums, objects, indent+1, rawObjects);
+					joi += `Joi.object(`;
+					joi += '{\n';
+					joi += childJoi;
+					joi += `${Utils.getIndent(indent)}`;
+					joi += '})';
+				}
 			
 			} else {
 				joi += `Joi.${object.data.values.data.type}()`;

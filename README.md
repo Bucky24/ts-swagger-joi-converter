@@ -113,12 +113,22 @@ Note each of these outputs is meant to be a snippet for the given objects. They 
 
 Enums are handled very differently in TypeScript vs other frameworks, and there are also two ways to create them.
 
+Note that you can pass both an array and an object into enum values. In the case of an object, the "key" will be the name for TypeScript, and will be ignored for Joi and Swagger, and the "value" will be used as the enum value for all three.
+
 ```js
-const { FieldTypes, Constants, compileObjects } = require('ts-swagger-joi-converter');
+const { FieldTypes, Constants, compileObjects, Types } = require('../src');
 
 const EnumObject = {
-	type: Types.Enum,
+	type: Constants.Types.Enum,
 	values: ['val1', 'val2']
+};
+
+const EnumObject2 = {
+	type: Constants.Types.Enum,
+	values: {
+		'Value1': '1',
+		'Value2': '2'
+	}
 };
 
 const ModelObject = {
@@ -126,23 +136,30 @@ const ModelObject = {
 	fields: {
 		field1: {
 			type: FieldTypes.Enum,
-			typeName: 'EnumObject'
+			typeName: 'EnumObject',
 			required: true
 		},
 		field2: {
 			type: FieldTypes.Enum,
 			values: ['Foo', 'Bar'],
 			required: true
-		}
+		},
+		field3: {
+			type: FieldTypes.Enum,
+			typeName: 'EnumObject2',
+			required: true
+		},
 	}
 }
 
-console.log('TypeScript:');
-console.log(output.typeScript);
-console.log('Swagger:');
-console.log(output.swagger);
-console.log('Joi:');
-console.log(output.joi);
+const output = compileObjects({
+	EnumObject,
+	EnumObject2,
+	ModelObject
+}, {
+	outputFormat: Constants.OutputTypes.File,
+	outputDirectory: __dirname
+});
 ```
 After running these objects through the compiler, you will have the following:
 
@@ -153,15 +170,22 @@ export enum EnumObject {
     val2 = 'val2'
 }
 
+export enum EnumObject2 {
+    Value1 = '1',
+    Value2 = '2'
+}
+
 export interface ModelObject {
     field1: EnumObject;
     field2: ModelObject_field2;
+    field3: EnumObject2;
 }
 
 export enum ModelObject_field2 {
-    Foo = 'foo',
-    Bar = 'bar'
+    foo = 'foo',
+    bar = 'bar'
 }
+
 ```
 *Swagger*
 ```yaml
@@ -174,12 +198,17 @@ export enum ModelObject_field2 {
         type: string
         enum: [foo, bar]
         required: true
+      field3:
+        type: string
+        enum: [1, 2]
+        required: true
 ```
 *Joi*
 ```ts
 export const ModelObject = Joi.object({
     field1: Joi.string().only(['val1', 'val2']).label('field1').required(),
-    field2: Joi.string().only(['foo', 'bar']).label('field2').required()
+    field2: Joi.string().only(['foo', 'bar']).label('field2').required(),
+    field3: Joi.string().only(['1', '2']).label('field3').required()
 });
 ```
 Notice that the compiler can use both a pre-created enum for TypeScript as well as create one at compile-time if desired.
@@ -295,6 +324,8 @@ Arrays support the following extra parameters:
 | allowSingle | Joi only, adds .single() to the array definition. This is generally useful when using repeated parameters in a query string, for allowing single values |
 | allowEmpty | Joi only, makes the inner object to the array optional, which allows an empty array to be passed |
 
+Note that extra parameters are ignored on all but the topmost array when nesting arrays.
+
 ```js
 const { compileObjects, FieldTypes, Constants } = require('../src/index');
 
@@ -313,7 +344,7 @@ const ArrayOne = {
 	fields: {
 		field1: {
 			type: FieldTypes.Array,
-			required: true,
+			required: false,
 			subType: {
 				type: FieldTypes.String
 			},
@@ -339,12 +370,33 @@ const ArrayOne = {
 			subType: {
 				type: FieldTypes.Obj,
 				typeName: 'ObjectOne'
-			}
+			},
+			allowEmpty: true
 		},
 	}
 };
 
-compileObjects({ ObjectOne, ArrayOne }, {
+const NestedArray = {
+	type: Constants.Types.Model,
+	fields: {
+		nestedArray: {
+			type: FieldTypes.Array,
+			subType: {
+				type: FieldTypes.Array,
+				subType: {
+					type: FieldTypes.Array,
+					subType: {
+						type: FieldTypes.Obj,
+						typeName: 'ObjectOne'
+					}
+				}
+			},
+			allowEmpty: true
+		}
+	}
+}
+
+compileObjects({ ObjectOne, ArrayOne, NestedArray }, {
 	outputFormat: Constants.OutputTypes.File,
 	outputDirectory: __dirname
 });
@@ -356,11 +408,14 @@ export interface ObjectOne {
 }
 
 export interface ArrayOne {
-    field1: string[];
+    field1?: string[];
     [field2: string]: string[];
-    field3: ObjectOne[];
+    field3?: ObjectOne[];
 }
 
+export interface NestedArray {
+    nestedArray?: ObjectOne[][][];
+}
 ```
 *Swagger*
 ```yaml
@@ -374,7 +429,6 @@ export interface ArrayOne {
         type: array
           items:
             type: string
-        required: true
       field2:
         type: object
 
@@ -382,7 +436,16 @@ export interface ArrayOne {
         type: array
           items:
             $ref: '#/components/schemas/ObjectOne'
-        required: true
+
+    NestedArray:
+      nestedArray:
+        type: array
+          items:
+            type: array
+              items:
+                type: array
+                  items:
+                    $ref: '#/components/schemas/ObjectOne'
 ```
 *Joi*
 ```ts
@@ -391,11 +454,21 @@ export const ObjectOne = Joi.object({
 });
 
 export const ArrayOne = Joi.object({
-    field1: Joi.array().single().items(Joi.string().required()).label('field1').required(),
+    field1: Joi.array().single().items(Joi.string().required()).label('field1').optional(),
     field2: Joi.object().pattern(/.*/,[Joi.string()]).label('field2').optional(),
     field3: Joi.array().items(Joi.object({
         field1_1: Joi.string().label('field1_1').required()
-    }).required()).label('field3').required()
+    }).optional()).label('field3').optional()
+});
+
+export const NestedArray = Joi.object({
+    nestedArray: Joi.array().items(
+        Joi.array().items(
+            Joi.array().items(Joi.object({
+                field1_1: Joi.string().label('field1_1').required()
+            }).optional())
+        )
+    ).label('nestedArray').optional()
 });
 ```
 
@@ -668,8 +741,8 @@ const Object2 = {
 };
 
 const output = compileObjects({
-	EnumObject,
-	ModelObject
+	Object1,
+	Object2
 });
 
 console.log('TypeScript:');

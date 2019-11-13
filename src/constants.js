@@ -1,4 +1,4 @@
-const standardTypes = ['string', 'number', 'date', 'object'];
+const standardTypes = ['string', 'number', 'date', 'object', 'array'];
 
 const Types = {
     Model: 'MODEL',

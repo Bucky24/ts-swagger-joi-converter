@@ -41,18 +41,37 @@ function buildSwaggerField(object, indent = 0) {
     //console.log(object.data);
     let swagger = `${getHalfIndent(indent + 3)}${object.name}:\n`;
     if (object.data.array) {
-        swagger += `${getHalfIndent(indent + 4)}type: array\n`;
-        swagger += `${getHalfIndent(indent + 5)}items:\n`;
+		let indentExtra = 4;
+		for (let i=0;i<object.data.array;i++) {
+        	swagger += `${getHalfIndent(indent + indentExtra)}type: array\n`;
+        	swagger += `${getHalfIndent(indent + indentExtra + 1)}items:\n`;
+			indentExtra += 2;
+		}
 		if (object.data.typeName) {
-			swagger += `${getHalfIndent(indent + 6)}$ref: '#/components/schemas/${object.data.typeName}'`;
+			swagger += `${getHalfIndent(indent + indentExtra)}$ref: '#/components/schemas/${object.data.typeName}'`;
 		} else {
-        	swagger += `${getHalfIndent(indent + 6)}type: ${object.data.type}`;
+        	swagger += `${getHalfIndent(indent + indentExtra)}type: ${object.data.type}`;
+		}
+		// print requires, if necesssary
+		if (object.data.required) {
+			for (let i=0;i<object.data.array-1;i++) {
+				indentExtra -= 2;
+        		swagger += `\n${getHalfIndent(indent + indentExtra)}required: true`;
+			}
 		}
     } else if (object.data.enum) {
         //console.log('hello');
-		const lowerCaseValues = object.data.values.map((value) => {
-			return value.toLowerCase();
-		});
+		let lowerCaseValues;
+		if (Array.isArray(object.data.values)) {
+			lowerCaseValues = object.data.values.map((value) => {
+				return value.toLowerCase();
+			});
+		} else {
+			// for swagger we don't care about the key, just the value
+			lowerCaseValues = Object.values(object.data.values).map((value) => {
+				return value.toLowerCase();
+			});
+		}
         swagger += `${getHalfIndent(indent + 4)}type: string\n`;
         swagger += `${getHalfIndent(indent + 4)}enum: [${lowerCaseValues.join(', ')}]`;
         //console.log(swagger);

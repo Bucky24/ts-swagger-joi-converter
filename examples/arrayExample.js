@@ -47,7 +47,30 @@ const ArrayOne = {
 	}
 };
 
-compileObjects({ ObjectOne, ArrayOne }, {
+const NestedArray = {
+	type: Constants.Types.Model,
+	fields: {
+		nestedArray: {
+			type: FieldTypes.Array,
+			subType: {
+				type: FieldTypes.Array,
+				subType: {
+					type: FieldTypes.Array,
+					subType: {
+						type: FieldTypes.Obj,
+						typeName: 'ObjectOne'
+					},
+					required: true
+				},
+				required: true
+			},
+			allowEmpty: true,
+			required: true
+		}
+	}
+}
+
+compileObjects({ ObjectOne, ArrayOne, NestedArray }, {
 	outputFormat: Constants.OutputTypes.File,
 	outputDirectory: __dirname
 });

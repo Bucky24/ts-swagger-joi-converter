@@ -44,6 +44,7 @@ function buildTypescriptField(object) {
     const tsName = object.data.required ? object.name : `${object.name}?`;
     const typeName = buildTypescriptType(object);
     let typescript = `${getIndent(1)}${tsName}: ${typeName}`;
+
     if (object.data.keys) {
         typescript = `${getIndent(1)}[${object.name}: ${object.data.keys.data.type}]`;
         typescript += `: ${typeName}`;
@@ -61,14 +62,16 @@ function buildTypescriptType(object) {
     }
 
     if (object.data.array) {
-        typeName += '[]';
+		for (let i=0;i<object.data.array;i++) {
+        	typeName += '[]';
+		}
     }
 
     return typeName;
 }
 
 function buildTypescriptEnumField(object) {
-    return `${getIndent(1)}${object.name} = '${object.data.value}'`;
+    return `${getIndent(1)}${object.data.key} = '${object.data.value}'`;
 }
 
 module.exports = buildTypescript;

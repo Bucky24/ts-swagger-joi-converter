@@ -8,7 +8,8 @@ const Compilers = require('./compilers');
 const INDENT_SIZE = 4;
 
 function flattenObject(object, key, parentName, enums) {
-    //console.log(object.type, key, typeof object, JSON.stringify(object, null, 4), object);
+    //console.log(object.type, key, typeof object);
+	//console.log(JSON.stringify(object, null, 4));
     if (object.type === 'model') {
         let modules = [
             {
@@ -52,11 +53,28 @@ function flattenObject(object, key, parentName, enums) {
         });
         return flattenObject(field, key, object.name, enums);
     } else if (object[key]) {
+		//console.log('yay types for',key, object.children.length);
         const type = object[key].data.type;
         if (type === 'array' && object.children.length > 0) {
-            const firstChild = object.children[0][key];
+			//console.log('here with array?');
+            let firstChild = object.children[0][key];
             if (Constants.standardTypes.includes(firstChild.data.type)) {
-                return {
+				//console.log('here for', object[key].name, firstChild);
+				const resultObj = flattenObject(object.children[0], key, undefined, enums);
+				return {
+					modules: resultObj.modules,
+					fields: [{
+						name: object[key].name,
+						data: {
+							...resultObj.fields[0].data,
+							array: resultObj.fields[0].data.array ? resultObj.fields[0].data.array + 1 : 1,
+							single: object[key].data.single,
+							allowEmpty: object[key].data.allowEmpty,
+                            required: object[key].data.required
+						}
+					}]
+				};
+                /*return {
                     modules: [], fields: [{
                         name: object[key].name,
                         data: {
@@ -68,7 +86,7 @@ function flattenObject(object, key, parentName, enums) {
 							allowEmpty: object[key].data.allowEmpty
                         }
                     }]
-                };
+                };*/
             } else {
                 throw new Error('Arrays with non-basic types not supported');
             }
@@ -83,15 +101,30 @@ function flattenObject(object, key, parentName, enums) {
                 throw new Error(`Unable to get enum values for ${parentName} ${object[key].name}`);
             }
             const enumFields = [];
-            object[key].data.values.forEach((value) => {
-                enumFields.push({
-                    name: value,
-                    data: {
-                        type: 'enum',
-                        value: value.toLowerCase()
-                    }
-                });
-            });
+			if (Array.isArray(object[key].data.values)) {
+	            object[key].data.values.forEach((value) => {
+	                enumFields.push({
+	                    name: value,
+	                    data: {
+	                        type: 'enum',
+	                        value: value.toLowerCase(),
+							key: value.toLowerCase()
+	                    }
+	                });
+	            });
+			} else {
+	            Object.keys(object[key].data.values).forEach((enumKey) => {
+					value = object[key].data.values[enumKey];
+	                enumFields.push({
+	                    name: value,
+	                    data: {
+	                        type: 'enum',
+	                        value,
+							key: enumKey
+	                    }
+	                });
+	            });
+			}
 
             const modules = [];
             if (!enums[enumName]) {

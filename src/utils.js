@@ -64,6 +64,8 @@ function flattenObject(object, key, parentName, enums) {
                             array: true,
                             ...firstChild.data,
                             required: object[key].data.required,
+							single: object[key].data.single,
+							allowEmpty: object[key].data.allowEmpty
                         }
                     }]
                 };
@@ -244,6 +246,15 @@ function getFilePrepend(type) {
 	};
 }
 
+// helper method for below functions
+const processField = (key, data) => {
+    if (!data.type) {
+        throw new Error(`No type field set for ${key}`);
+    }
+    const result = data.type(key, data);
+	return result;
+};
+
 function processObjectForCompiling(contentName, data, rawObjects) {
     let topLevel;
 
@@ -256,23 +267,8 @@ function processObjectForCompiling(contentName, data, rawObjects) {
 			extendedFields: []
         };
 		
-		const processField = (key, data) => {
-            if (!data.type) {
-                throw new Error(`No type field set for ${key}`);
-            }
-            const result = data.type(key, data);
-			return result;
-        };
-		
 		if (data.extends) {
-			const extended = rawObjects[data.extends];
-			if (!extended) {
-				throw new Error(`Cannot find extended object ${data.extends}`);
-			}
-	        Object.keys(extended.fields).forEach((key) => {
-	            const keyData = extended.fields[key];
-	            topLevel.extendedFields.push(processField(key, keyData));
-	        });
+			topLevel.extendedFields = getAllExtendedFields(data.extends, rawObjects);
 		}
 
         Object.keys(data.fields).forEach((key) => {
@@ -288,6 +284,34 @@ function processObjectForCompiling(contentName, data, rawObjects) {
     }
 	
 	return topLevel;
+}
+
+function getAllExtendedFields(objName, rawObjects, processed = []) {
+	if (processed.includes(objName)) {
+		throw new Error(`Infinite loop detected for object extending. Chain is ${processed.join(', ')}`);
+	}
+	const extended = rawObjects[objName];
+	if (!extended) {
+		throw new Error(`Cannot find extended object ${objName}`);
+	}
+	const myFields = [];
+    Object.keys(extended.fields).forEach((key) => {
+        const keyData = extended.fields[key];
+        myFields.push(processField(key, keyData));
+    });
+	let extendedFields = [];
+	if (extended.extends) {
+		const newProcessed = [
+			...processed,
+			objName
+		];
+		extendedFields = getAllExtendedFields(extended.extends, rawObjects, newProcessed);
+	}
+	
+	return [
+		...myFields,
+		...extendedFields
+	];
 }
 
 module.exports = {

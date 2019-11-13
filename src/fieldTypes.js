@@ -74,6 +74,9 @@ const Array = (key, data) => {
     	const subType = data.subType.type(null, data.subType);
 		children.push(subType);
 	}
+	
+	const single = data.allowSingle || false;
+	const allowEmpty = data.allowEmpty || false;
 
     return {
         typeScript: {
@@ -82,7 +85,9 @@ const Array = (key, data) => {
                 type: 'array',
                 required: data.required,
 				typeName: data.typeName,
-				tag: data.tag
+				tag: data.tag,
+				single,
+				allowEmpty
             }
         },
         swagger: {
@@ -91,7 +96,9 @@ const Array = (key, data) => {
                 type: 'array',
                 required: data.required,
 				typeName: data.typeName,
-				tag: data.tag
+				tag: data.tag,
+				single,
+				allowEmpty
             }
         },
         joi: {
@@ -100,7 +107,9 @@ const Array = (key, data) => {
                 type: 'array',
                 required: data.required,
 				typeName: data.typeName,
-				tag: data.tag
+				tag: data.tag,
+				single,
+				allowEmpty
             }
         },
         children

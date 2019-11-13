@@ -20,6 +20,9 @@ function compileObjects(object, settings = {}) {
     Object.keys(object).forEach((contentName) => {
 		rawObjects[contentName] = object[contentName];
         const data = _.cloneDeep(object[contentName]);
+		if (!data.type) {
+			throw new Error(`Invalid type given for ${contentName}`);
+		}
 
         const result = compileObjectHelper(contentName, data, enums, objects, {}, rawObjects);
 		if (result.typeScript) {

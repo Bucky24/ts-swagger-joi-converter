@@ -15,10 +15,11 @@ const ArrayOne = {
 	fields: {
 		field1: {
 			type: FieldTypes.Array,
-			required: true,
+			required: false,
 			subType: {
 				type: FieldTypes.String
-			}
+			},
+			allowSingle: true
 		},
 		field2: {
 			type: FieldTypes.Obj,
@@ -40,7 +41,8 @@ const ArrayOne = {
 			subType: {
 				type: FieldTypes.Obj,
 				typeName: 'ObjectOne'
-			}
+			},
+			allowEmpty: true
 		},
 	}
 };

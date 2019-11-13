@@ -17,6 +17,7 @@ function buildJoi(object, indent, enums, objects, rawObjects) {
     const result = Utils.flattenObject(object, 'joi', undefined, enums);
     const modules = result.modules;
     //console.log(JSON.stringify(modules, null, 4));
+	//console.log(JSON.stringify(objects, null, 4));
 
     let joi = '';
 
@@ -28,10 +29,8 @@ function buildJoi(object, indent, enums, objects, rawObjects) {
 		let anyTagsFound = false;
 		const bySection = {};
 		
-		const allFields = [
-			...module.extendedFields,
-			...module.fields
-		];
+	
+		const allFields = getUniqueFields(module.fields, module.extendedFields);
 
         allFields.forEach((field) => {
 			const section = sectionLookup[field.data.tag];
@@ -98,12 +97,38 @@ function buildJoiField(object, enums, objects, indent=1, comma, rawObjects) {
 	return fullLine;
 }
 
+function getUniqueFields(fields, extendedFields) {
+	// merge the fields with extended fields
+	const alreadyHandled = [];
+	const uniqueFields = [];
+	// first process non-extended fields, since those take priority
+	fields.forEach((field) => {
+		if (alreadyHandled.includes(field.name)) {
+			return;
+		}
+		alreadyHandled.push(field.name);
+		uniqueFields.push(field);
+	});
+	
+	extendedFields.forEach((field) => {
+		if (alreadyHandled.includes(field.name)) {
+			return;
+		}
+		alreadyHandled.push(field.name);
+		uniqueFields.push(field);
+	});
+	
+	return uniqueFields;
+}
+
 function processObject(name, typeObject, enums, rawObjects) {
 	const newTypeObj = _.cloneDeep(typeObject);
 	const processedData = Utils.processObjectForCompiling(name, newTypeObj, rawObjects);
 	const result = Utils.flattenObject(processedData, 'joi', undefined, enums);
 	let childJoi = '';
 	const childModule = result.modules[0];
+	
+	childModule.fields = getUniqueFields(childModule.fields, childModule.extendedFields);
 	
 	return childModule;
 }
@@ -113,7 +138,7 @@ function getJoiLine(object, enums, objects, indent, rawObjects) {
     if (object.data.array) {
         const realFieldData = {
             ...object.data,
-            required: true
+            required: !object.data.allowEmpty
         };
         delete realFieldData.name;
         delete realFieldData.array;
@@ -123,7 +148,11 @@ function getJoiLine(object, enums, objects, indent, rawObjects) {
         // remove comma
         line = line.substring(0, line.length);
         //console.log(line);
-        joi += `Joi.array().items(${line})`;
+        joi += `Joi.array()`;
+		if (object.data.single) {
+			joi += '.single()';
+		}
+		joi += `.items(${line})`;
     } else if (object.data.enum) {
         const valuesWithQuotes = object.data.values.map((value) => {
             return `'${value.toLowerCase()}'`;

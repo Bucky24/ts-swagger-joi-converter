@@ -40,11 +40,7 @@ const ObjectTwo = {
 const output = compileObjects({
 	ObjectOne,
 	ObjectTwo
+}, {
+	outputFormat: Constants.OutputTypes.File,
+	outputDirectory: __dirname
 });
-
-console.log('TypeScript:');
-console.log(output.typeScript);
-console.log('Swagger:');
-console.log(output.swagger);
-console.log('Joi:');
-console.log(output.joi);

@@ -79,19 +79,21 @@ export interface RequestObjectTwo {
 Swagger data will look like this:
 ```yaml
     RequestObjectOne:
-      strField:
-        type: string
-      createdAt:
-        type: string
-        format: date-time
-        required: true
-      extraData:
-        type: object
+      properties:
+        strField:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          required: true
+        extraData:
+          type: object
 
 
     RequestObjectTwo:
-      num1:
-        type: number
+      properties:
+        num1:
+          type: number
 ```
 
 Joi data will look like this:
@@ -190,18 +192,19 @@ export enum ModelObject_field2 {
 *Swagger*
 ```yaml
     ModelObject:
-      field1:
-        type: string
-        enum: [val1, val2]
-        required: true
-      field2:
-        type: string
-        enum: [foo, bar]
-        required: true
-      field3:
-        type: string
-        enum: [1, 2]
-        required: true
+      properties:
+        field1:
+          type: string
+          enum: [val1, val2]
+          required: true
+        field2:
+          type: string
+          enum: [foo, bar]
+          required: true
+        field3:
+          type: string
+          enum: [1, 2]
+          required: true
 ```
 *Joi*
 ```ts
@@ -260,14 +263,10 @@ const ObjectTwo = {
 const output = compileObjects({
 	ObjectOne,
 	ObjectTwo
+}, {
+	outputFormat: Constants.OutputTypes.File,
+	outputDirectory: __dirname
 });
-
-console.log('TypeScript:');
-console.log(output.typeScript);
-console.log('Swagger:');
-console.log(output.swagger);
-console.log('Joi:');
-console.log(output.joi);
 ```
 *TypeScript*
 ```ts
@@ -284,22 +283,24 @@ export interface ObjectTwo {
 *Swagger*
 ```yaml
     ObjectOne:
-      item_id:
-        type: object
+      properties:
+        item_id:
+          type: object
 
-        required: true
+          required: true
 
     ObjectTwo:
-      item:
-        type: object
+      properties:
+        item:
+          type: object
 
-        required: true
-      thing:
-        type: object
-            $ref: '#/components/schemas/ObjectOne'
-        required: true
-      props:
-        type: object
+          required: true
+        thing:
+          type: object
+          $ref: '#/components/schemas/ObjectOne'
+          required: true
+        props:
+          type: object
 ```
 *Joi*
 ```ts
@@ -420,32 +421,38 @@ export interface NestedArray {
 *Swagger*
 ```yaml
     ObjectOne:
-      field1_1:
-        type: string
-        required: true
+      properties:
+        field1_1:
+          type: string
+          required: true
 
     ArrayOne:
-      field1:
-        type: array
+      properties:
+        field1:
+          type: array
           items:
             type: string
-      field2:
-        type: object
+        field2:
+          type: object
 
-      field3:
-        type: array
+        field3:
+          type: array
           items:
             $ref: '#/components/schemas/ObjectOne'
+          required: true
 
     NestedArray:
-      nestedArray:
-        type: array
+      properties:
+        nestedArray:
+          type: array
           items:
             type: array
+            items:
+              type: array
               items:
-                type: array
-                  items:
-                    $ref: '#/components/schemas/ObjectOne'
+                $ref: '#/components/schemas/ObjectOne'
+            required: true
+          required: true
 ```
 *Joi*
 ```ts
@@ -570,24 +577,27 @@ export interface ParentObject {
 *Swagger*
 ```yaml
     FirstChild:
-      field1_1:
-        type: string
-        required: true
+      properties:
+        field1_1:
+          type: string
+          required: true
 
     SecondChild:
-      field_2_1:
-        type: object
+      properties:
+        field_2_1:
+          type: object
 
-      field_2_2:
-        type: boolean
+        field_2_2:
+          type: boolean
 
     ParentObject:
-      child:
-        type: object
-            $ref: '#/components/schemas/SecondChild'
-        required: true
-      field_parent_1:
-        type: object
+      properties:
+        child:
+          type: object
+          $ref: '#/components/schemas/SecondChild'
+          required: true
+        field_parent_1:
+          type: object
 ```
 *Joi*
 ```ts
@@ -682,12 +692,14 @@ export interface Object3 {
 *Swagger*
 ```yaml
     Object1:
-      field1:
-        type: string
+      properties:
+        field1:
+          type: string
 
     Object2:
-      field1:
-        type: string
+      properties:
+        field1:
+          type: string
 ```
 
 *Joi*
@@ -869,34 +881,38 @@ export interface Object4 {
 *Swagger*
 ```yaml
     Object1:
-      field1_1:
-        type: number
-        required: true
-      field1_2:
-        type: object
+      properties:
+        field1_1:
+          type: number
+          required: true
+        field1_2:
+          type: object
 
 
     Object2:
-      allOf:
-        - $ref: '#/components/schemas/Object1'
-        - type: object
-          properties:
-            field2_1:
-              type: boolean
+      properties:
+        allOf:
+          - $ref: '#/components/schemas/Object1'
+          - type: object
+            properties:
+              field2_1:
+                type: boolean
 
     Object3:
-      allOf:
-        - $ref: '#/components/schemas/Object2'
-        - type: object
-          properties:
-            field1_2:
-              type: string
-              format: date-time
+      properties:
+        allOf:
+          - $ref: '#/components/schemas/Object2'
+          - type: object
+            properties:
+              field1_2:
+                type: string
+                format: date-time
 
     Object4:
-      object2_field:
-        type: object
-            $ref: '#/components/schemas/Object3'
+      properties:
+        object2_field:
+          type: object
+          $ref: '#/components/schemas/Object3'
 ```
 
 *Joi*

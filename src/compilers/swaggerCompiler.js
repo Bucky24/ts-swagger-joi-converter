@@ -17,14 +17,15 @@ function buildSwagger(object, indent, enums) {
             return;
         }
         swagger += `${getHalfIndent(2)}${module.name}:\n`;
+		swagger += `${getHalfIndent(3)}properties:\n`;
 		
-		let extraIndent = 0;
+		let extraIndent = 1;
 		if (module.extends) {
-			swagger += `${getHalfIndent(3)}allOf:\n`;
-			swagger += `${getHalfIndent(4)}- $ref: '#/components/schemas/${module.extends}'\n`;
-			swagger += `${getHalfIndent(4)}- type: object\n`;
-			swagger += `${getHalfIndent(5)}properties:\n`;
-			extraIndent = 3;
+			swagger += `${getHalfIndent(4)}allOf:\n`;
+			swagger += `${getHalfIndent(5)}- $ref: '#/components/schemas/${module.extends}'\n`;
+			swagger += `${getHalfIndent(5)}- type: object\n`;
+			swagger += `${getHalfIndent(6)}properties:\n`;
+			extraIndent += 3;
 		}
 
         module.fields.forEach((field) => {
@@ -44,8 +45,8 @@ function buildSwaggerField(object, indent = 0) {
 		let indentExtra = 4;
 		for (let i=0;i<object.data.array;i++) {
         	swagger += `${getHalfIndent(indent + indentExtra)}type: array\n`;
-        	swagger += `${getHalfIndent(indent + indentExtra + 1)}items:\n`;
-			indentExtra += 2;
+        	swagger += `${getHalfIndent(indent + indentExtra)}items:\n`;
+			indentExtra += 1;
 		}
 		if (object.data.typeName) {
 			swagger += `${getHalfIndent(indent + indentExtra)}$ref: '#/components/schemas/${object.data.typeName}'`;
@@ -54,7 +55,7 @@ function buildSwaggerField(object, indent = 0) {
 		}
 		// print requires, if necesssary
 		if (object.data.required) {
-			for (let i=0;i<object.data.array-1;i++) {
+			for (let i=0;i<object.data.array-2;i++) {
 				indentExtra -= 2;
         		swagger += `\n${getHalfIndent(indent + indentExtra)}required: true`;
 			}
@@ -81,7 +82,7 @@ function buildSwaggerField(object, indent = 0) {
     } else if (object.data.type === 'object') {
 	    swagger += `${getHalfIndent(indent + 4)}type: object\n`;
 		if (object.data.typeName) {
-            swagger += `${getHalfIndent(indent + 6)}$ref: '#/components/schemas/${object.data.typeName}'`;
+            swagger += `${getHalfIndent(indent + 4)}$ref: '#/components/schemas/${object.data.typeName}'`;
 		}
 	} else {
         swagger += `${getHalfIndent(indent + 4)}type: ${object.data.type}`;

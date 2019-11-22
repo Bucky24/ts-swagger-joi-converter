@@ -3,6 +3,9 @@
   "version": "0.9.1",
   "description": "",
   "main": "src/index.js",
+  "publishConfig":{
+	  "registry":"https://registry.npmjs.org"
+  },
   "scripts": {
     "test": "NODE_ENV=test LOG_LEVEL=warn jest -c jest.config.js --runInBand --detectOpenHandles"
   },
